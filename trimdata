@@ -1,0 +1,42 @@
+trimdata<-function(dataset, dv, factors, tr=3, min.val=NULL, max.val=NULL) {
+  temp<-dataset
+	x<-temp[[dv]]
+	f<-factor(interaction(temp[, factors]))
+	orig.id<-1:nrow(temp)
+	nr<-nrow(temp)
+	if(!is.null(min.val)) {
+		out.id<-which(x<min.val)
+		n.out<-length(out.id)
+	}
+	if(!is.null(max.val)){
+		if(!is.null(min.val))
+			out.id<-c(out.id, which(x>max.val))
+		else out.id<-which(x>max.val)
+		n.out<-length(out.id)
+	}
+	if(!is.null(min.val)|!is.null(max.val)|n.out>0){
+		keep.id<-orig.id[-out.id]
+	} else keep.id<-orig.id
+	x<-x[keep.id]
+	f<-f[keep.id]
+	xbars<-tapply(x, list(f), mean)
+	SD<-tapply(x, list(f), sd)
+	xbars<-xbars[match(f,names(xbars))]
+	SD<-SD[match(f,names(SD))]
+	crit.lo<-xbars-tr*SD
+	crit.hi<-xbars+tr*SD
+	x.new<-ifelse(x>crit.hi, crit.hi, ifelse(x<crit.lo, crit.lo, x))
+	n.replaced<-sum(x!=x.new)
+	temp<-temp[keep.id,]
+	temp<-cbind(temp, x.new)
+	names(temp)[ncol(temp)]<-paste(dv, "_new", sep="")
+	if(exists("n.out")) {
+		n.out<-round(n.out*100/nr, 2)
+		print(paste(n.out, "% of observations have been removed", sep=""))	
+	}
+	
+	n.replaced<-round(n.replaced*100/nr, 2)
+	print(paste(n.replaced, "% of observations have been replaced", sep=""))	
+	temp
+}
+
