@@ -1,0 +1,223 @@
+aov.mcp<-function(model, pairs=FALSE, method=c("Bonferroni", "Holm",  "none", "Tukey", "Hochberg", "BH", "BY", "fdr"), condition=NULL, pooled.sd=TRUE, var.equal=FALSE){
+    r<-paired<-if(sum(names(model)=="(Intercept)")!=0) TRUE else FALSE   
+  if(length(method)>1){
+		method<-"bonferroni"
+	} else {
+		method<-tolower(method)
+		if(r){
+			if(!(method %in% c("bonferroni", "holm", "none")))
+				stop("For repeated measures ANOVA, use Bonferroni, Holm, or none.")
+		}
+	}
+    df<-model.frame(model)
+    if(r){
+    	if(is.null(condition)){
+	    	if(!is.null(ncol(df[,2:(ncol(df)-1)])))
+    			cs<-interaction(df[,2:(ncol(df)-1)], lex.order=T)
+  			else cs<-df[[2]]	
+  		}else{
+  			cs<-df[[condition]]
+  	  	}
+    } else{
+    	if(is.null(condition)){
+    		if(!is.null(ncol(df[,2:ncol(df)]))){
+	   			cs<-interaction(df[,2:ncol(df)], lex.order=T)
+    		}else cs<-df[[2]]	
+  		} else {
+  			cs<-df[[condition]]		
+  		}
+    }
+  	crnames<-levels(cs)
+	cp<-outer(crnames, crnames, paste, sep=" vs. ")[upper.tri(outer(crnames, crnames, paste, sep="-"))]
+	if(!pairs){
+		nc<-length(cp)
+		id<-1:nc
+    } else if(method=="tukey"&pairs) {
+	    warning("Tukey-Kramer was chosen; all pairwise comparisons were conducted.\n")
+   		nc<-length(cp)
+		id<-1:nc
+
+    } else {
+		cp<-sort(cp)
+    	Contrast<-matrix(unlist(strsplit(cp, split=" vs. ")), ncol=2, byrow=T)
+	    w1a<-max(nchar(Contrast[,1]))
+    	w1b<-max(nchar(Contrast[,2]))
+    	cat("\n\t\t", format(" ", width=11+w1a+w1b+3), " ",
+    	    format("Index", width=5, justify="centre"), sep="", "\n")
+    	for(i in 1:length(cp)){
+    		cat("\t\t", ifelse(i==1, "Contrasts: ", "           "),
+    		    format(Contrast[i,1], width=w1a, justify="left"), " - ",
+    		    format(Contrast[i,2], width=w1b, justify="left"), " ",
+    		    format(i, width=nchar("Index"), justify="right"),
+ 				sep="", "\n")
+    	}
+    	id<-readline(paste("\n - Enter contrast indices separated by commas:  "))
+    	id<-as.numeric(unlist(strsplit(id, split=",")))
+    	nc<-length(id)  
+    }
+    cp<-gsub(" vs. ", "=", cp)
+    cp<-mapply(strsplit, cp[id], split="=")
+    if(!r){
+		dft<-split(df[[1]], f=cs)
+	}else{
+    	rf<-df[[ncol(df)]]
+    	dft<-as.data.frame(tapply(df[[1]], list(rf, cs), mean))
+	}
+	p<-t<-dif<-numeric(nc)
+	if(method!="tukey"){
+    	for(i in 1:nc){
+    		g1<-dft[[cp[[i]][1]]]
+	    	g2<-dft[[cp[[i]][2]]]
+    		if(r){
+	    		d<-g1-g2
+	    		n<-length(d)
+	    		dif[i]<-mean(d)
+    			t[i]<-dif[i]*sqrt(n)/sd(d)
+    			p[i]<-2*pt(-abs(t[i]), df=n-1)
+    			
+	    	}else{
+	    		n1<-length(g1)
+    			n2<-length(g2)
+    			dif[i]<-mean(g1)-mean(g2)
+	    		if(pooled.sd) {
+	    			cpsub<-sort(unique(unlist(cp)))
+	    			dfg<-(unlist(lapply(dft,length))-1)[cpsub]
+	    			df.total<-sum(dfg)
+	    			vars<-unlist(lapply(dft, var))[cpsub]
+	    			sdp<-sqrt(sum(vars*dfg)/df.total)
+	    			t[i]<-dif[i]/sqrt(1/n1+1/n2)/sdp		
+	    		} else {
+	    			if(!var.equal){
+	    				sdp<-sqrt(var(g1)/n1 + var(g2)/n2)
+		    			df.total<-sdp^4/((var(g1)/n1)^2/(n1-1)+ 
+		    					  (var(g2)/n2)^2/(n2-1))
+    					t[i]<-dif[i]/sdp
+	    			} else {
+	                	sdp<-sqrt(((n1-1)*var(g1)+(n2-1)*var(g2))/(n1+n2-2))
+    	            	df.total<-n1+n2-2
+        	        	t[i]<-dif[i]/sqrt(1/n1+1/n2)/sdp 			   
+    				}	
+	    		}
+	    		p[i]<-2*pt(-abs(t[i]), df= df.total)
+    		}	
+	    }
+	    p<-p.adjust(p, method=method)
+	} else {		
+	 	A<-sum(df[[1]]^2)
+	 	B<-sum(df[[1]])
+	 	C<-sum((tapply(df[[1]],cs, sum, na.rm=TRUE)^2)/tapply(!is.na(df[[1]]), cs, sum))
+	 	N<-sum(tapply(!is.na(df[[1]]), cs, sum))
+	 	SSWG=A-C
+	 	v1<-length(unique(cs))-1
+	 	v2<-N-v1-1
+	 	v<-N-v1+1
+	 	MSWG<-SSWG/v2
+	 	cilo<-cihi<-numeric(nc)
+	 	for(i in 1:nc){
+    		g1<-dft[[cp[[i]][1]]]
+	    	g2<-dft[[cp[[i]][2]]]
+	    	n1<-length(g1)
+    		n2<-length(g2)
+    		dif[i]<-mean(g1)-mean(g2)
+    		obs<-abs(dif[i])/sqrt(MSWG*(1/n1+1/n2)/2)
+    		q<-qtukey(.95, length(unique(cs)), df=v)
+    		cihi[i]<-dif[i]+q*sqrt(MSWG*(1/n1+1/n2)/2)
+     		cilo[i]<-dif[i]-q*sqrt(MSWG*(1/n1+1/n2)/2)
+    		p[i]<-ptukey(abs(obs), length(unique(cs)), df=v, lower.tail=FALSE)
+		}
+	}
+	Contrast=matrix(unlist(strsplit(names(cp), split="=")), ncol=2, byrow=T)
+	if(method=="tukey"){
+		cm<-data.frame(Contrast1=Contrast[,1], " - ", Contrast2=Contrast[,2], 
+				       Delta=format(dif,digits=4),
+				       cilo<-format(cilo, digits=4),
+				       cihi<-format(cihi, digits=4),
+					   p=format.pval(round(p,5), digits=5),
+	        	       Sig = ifelse(p >.05, " ", 
+	            	         ifelse(p >.01, "*  ", 
+							 ifelse(p>.001, "** ", "***"))))
+	    w1a<-max(nchar(as.character(cm$Contrast1)))
+		w1b<-max(nchar(as.character(cm$Contrast2)))
+		w2<-max(nchar(as.character(cm$Delta)))
+		w3a<-max(nchar(as.character(cm$cilo)))
+		w3b<-max(nchar(as.character(cm$cihi)))
+		w4<-max(nchar(as.character(cm$p)))
+	 	cat("\n\t", format("Multiple Comparisons", 
+    	    width=w1a+w1b+w2+w3a+w3b+w4+7, justify="centre"),"\n")
+    	cat("\t", format("Using the Tukey-Kramer Method",
+    	    width=w1a+w1b+w2+w3a+w3b+w4+7, justify="centre"),"\n\n")
+        cat("\t", 
+    	    format(" ", width=w1a+w1b+5, justify="centre")," ",
+        	format("Diff", width=w2, justify="right"), " ",
+	        format("Cilo", width=w3a, justify="right"),
+	        format("Cihi", width=w3b+1, justify="right"), 
+	        format("P adj", width=w4+1, justify="right"), 
+	        sep="", "\n")
+		for(i in 1:nrow(cm)){
+			cat("\t", 
+			    format(cm[i,1], width=w1a), 
+			    format(cm[i,2], width=1),
+			    format(cm[i,3], width=w1b), " = ", 
+			    format(cm[i,4], width=w2), " ",
+ 			    format(cm[i,5], width=w3a), " ",
+ 			    format(cm[i,6], width=w3b), " ",
+ 			    format(cm[i,7], width=w4)," ",
+			    format(cm[i,8]), "\n", sep="") 	
+		}
+		cat("-----")
+    	cat("\nSignif codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1\n")
+	} else{
+		cm<-data.frame(Contrast1=Contrast[,1], " - ", Contrast2=Contrast[,2], 
+					   Delta=format(dif,digits=4),
+	    	           p=format.pval(round(p,5), digits=5),
+	        	       Sig = ifelse(p >.05, " ", 
+	            	         ifelse(p >.01, "*  ", 
+							 ifelse(p>.001, "** ", "***"))))
+		colnames(cm)<-c("Contrast1"," ", "Contrast2","Delta", "Pr(<)", "Sig")
+		cm<-cm[order(cm[,1]),]
+		rownames(cm)<-1:nrow(cm)
+		w1a<-max(nchar(as.character(cm$Contrast1)))
+		w1b<-max(nchar(as.character(cm$Contrast2)))
+		w2<-max(nchar(as.character(cm$Delta)))
+		w3<-max(nchar(as.character(cm[[5]])))
+    	if(pooled.sd) pooled.sd<-"Pooled SD" else pooled.sd<-"Unpooled SD"
+	 	cat("\n\t", format(paste("Multiple Comparisons"), 
+    	    width=w1a+w1b+w2+w3+7, justify="centre"),"\n")
+    	cat("\t", format(paste("with", pooled.sd), 
+	        width=w1a+w1b+w2+w3+7, justify="centre"),"\n")
+    	cat("\t", format("-----",
+       	width=w1a+w1b+w2+w3+7, justify="centre"),"\n")
+	    	dp<-if(r)"Dependent" else "Independent"
+   		cat("\t", format(paste("for", dp, "Groups"), 
+        	width=w1a+w1b+w2+w3+7, justify="centre"),"\n\n")
+        cat("\t", 
+    	    format(" ", width=w1a+w1b+5, justify="centre")," ",
+        	format("Diff", width=w2, justify="right"), " ",
+	        format("P adj", width=w3+1, justify="right"), sep="", "\n")
+		for(i in 1:nrow(cm)){
+			cat("\t", 
+			    format(cm[i,1], width=w1a), 
+			    format(cm[i,2], width=1),
+			    format(cm[i,3], width=w1b), " = ", 
+			    format(cm[i,4], width=w2), " ",
+			    format(cm[i,5], width=w3+1, justify="right"), " ",
+			    format(cm[i,6]), "\n", sep="") 	
+		}
+    	method<-paste(toupper(substr(method,1,1)), 
+                  substr(method,2,nchar(method)), sep="")
+		cat("-----")
+    		cat("\nSignif codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1")
+    		cat("\nP-value adjustment method:", method, "\n")	
+	}
+	cat("-----\n")
+	if(!r){
+		if(method!="tukey"){			
+			if(pooled.sd=="Pooled SD") cat("NOTE: - Pooled SD was used.\n")
+			else cat("NOTE: - Unpooled SD was used.\n")
+			if(var.equal&pooled.sd!="Pooled SD") cat("      - Equal variance was assumed; Student's t-test was used.\n")
+			else if(!var.equal) cat("      - Equal variance was NOT assumed; Welch's test was used.\n")
+		}
+	}else{
+		cat("NOTE: - 'pooled.sd' and 'var.equal' do not apply to dependent groups.\n")
+	}
+}
