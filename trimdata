@@ -1,9 +1,8 @@
 trimdata<-function(dataset, dv, factors, tr=3, min.val=NULL, max.val=NULL) {
-  temp<-dataset
-	x<-temp[[dv]]
-	f<-factor(interaction(temp[, factors]))
-	orig.id<-1:nrow(temp)
-	nr<-nrow(temp)
+	x<-dataset[[dv]]
+	f<-factor(interaction(dataset[, factors]))
+	orig.id<-1:nrow(dataset)
+	nr<-nrow(dataset)
 	if(!is.null(min.val)) {
 		out.id<-which(x<min.val)
 		n.out<-length(out.id)
@@ -27,9 +26,9 @@ trimdata<-function(dataset, dv, factors, tr=3, min.val=NULL, max.val=NULL) {
 	crit.hi<-xbars+tr*SD
 	x.new<-ifelse(x>crit.hi, crit.hi, ifelse(x<crit.lo, crit.lo, x))
 	n.replaced<-sum(x!=x.new)
-	temp<-temp[keep.id,]
-	temp<-cbind(temp, x.new)
-	names(temp)[ncol(temp)]<-paste(dv, "_new", sep="")
+	dataset<-dataset[keep.id,]
+	dataset<-cbind(dataset, x.new)
+	names(dataset)[ncol(dataset)]<-paste(dv, "_new", sep="")
 	if(exists("n.out")) {
 		n.out<-round(n.out*100/nr, 2)
 		print(paste(n.out, "% of observations have been removed", sep=""))	
@@ -37,6 +36,5 @@ trimdata<-function(dataset, dv, factors, tr=3, min.val=NULL, max.val=NULL) {
 	
 	n.replaced<-round(n.replaced*100/nr, 2)
 	print(paste(n.replaced, "% of observations have been replaced", sep=""))	
-	temp
+	dataset
 }
-
