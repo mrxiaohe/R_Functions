@@ -13,8 +13,11 @@ trimdata<-function(dataset, dv, factors, tr=3, min.val=NULL, max.val=NULL) {
 		else out.id<-which(x>max.val)
 		n.out<-length(out.id)
 	}
-	if(!is.null(min.val)|!is.null(max.val)|n.out>0){
-		keep.id<-orig.id[-out.id]
+	if(!is.null(min.val)|!is.null(max.val)){
+		if(length(n.out)>0)
+			keep.id<-orig.id[-out.id]
+		else
+			keep.id<-orig.id
 	} else keep.id<-orig.id
 	x<-x[keep.id]
 	f<-f[keep.id]
