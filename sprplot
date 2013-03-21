@@ -1,9 +1,9 @@
-sprplot=function(rt, word.position, cond, dataframe, errbar=TRUE, whisker=.015, cex.pch=1,   	
-		 		 pch.col=NULL, conf.level=.95, args.errbar=NULL, xlab=NULL, ylab=NULL, cex.lab=NULL,
-                 main=NULL, cex.main=NULL,text=NULL, cex.text=NULL, args.text=NULL, type="b", 
-                 lty=NULL, col=NULL, pch=NULL, legend=TRUE, args.legend=NULL, axes=TRUE, xaxis.names.line=NULL,
-                 args.xaxis=NULL, args.yaxis=NULL,col.axis="transparent", x=NULL, ylim, xaxp, 
-                 bg.col=gray(0.92), args.bg.col=NULL,grid.col="white", horiz.grid=TRUE, args.grid=NULL, box.col="black", box.lwd=0.5, mar=NULL,output=TRUE,...){
+sprplot<-function(rt, word.position, cond, dataframe, errbar=TRUE, whisker=.015, cex.pch=1, 		
+		  		  pch.col=NULL, conf.level=.95, args.errbar=NULL, xlab=NULL, ylab=NULL, cex.lab=NULL,
+                  main=NULL, cex.main=NULL,text=NULL, cex.text=NULL, args.text=NULL, type="b", 
+                  lty=NULL, col=NULL, pch=NULL, legend=TRUE, args.legend=NULL, axes=TRUE, xlab.line=NULL, ylab.line=3,
+                  args.xaxis=NULL, args.yaxis=NULL,col.axis="transparent", x=NULL, ylim, xaxp, 
+                  bg.col=gray(0.92), args.bg.col=NULL,grid.col="white", horiz.grid=TRUE, args.grid=NULL, box.col="black", box.lwd=0.5, mar=NULL,output=TRUE,...){
   if(type=="l") pch=NA
   if(missing(dataframe)) stop("Missing the data object")
   if(missing(rt)) stop("Missing the reading time column")
@@ -41,7 +41,7 @@ sprplot=function(rt, word.position, cond, dataframe, errbar=TRUE, whisker=.015, 
   if(!is.null(mar) & length(mar)==4) par(mar=mar)
   add=F
   if(!is.null(bg.col)){
-    matplot(x=xvals, y=avg, axes=FALSE, ylim=ylim, xlab="", ylab=ylab, 
+    matplot(x=xvals, y=avg, axes=FALSE, ylim=ylim, xlab="", ylab="", 
               cex.lab=cex.lab, type="n",main=main, cex.main=cex.main,...)
     xycoord<-as.list(par("usr")[c(1,3,2,4)])
     args.bg.col<-if(is.null(args.bg.col) | !is.list(args.bg.col)) list(col=bg.col, border=NA)
@@ -51,7 +51,7 @@ sprplot=function(rt, word.position, cond, dataframe, errbar=TRUE, whisker=.015, 
   }
   if(!is.null(grid.col)){
     if(!add)
-      matplot(x=xvals, y=avg, axes=FALSE, ylim=ylim, xlab="", ylab=ylab, 
+      matplot(x=xvals, y=avg, axes=FALSE, ylim=ylim, xlab="", ylab="", 
               cex.lab=cex.lab, type="n",main=main, cex.main=cex.main,...)
     if(horiz.grid){ 
       args.grid<-if(!is.null(args.grid) & !is.list(args.grid)) list(col=grid.col) 
@@ -68,7 +68,7 @@ sprplot=function(rt, word.position, cond, dataframe, errbar=TRUE, whisker=.015, 
   if(!is.null(box.col) & axes)
     box(col=box.col, lwd=box.lwd)
   args.matplot<-list(x=xvals, y=avg, ylim=ylim, type = type, xaxp = xaxp,
-                    xlab="", ylab = ylab, pch = pch, cex.lab = cex.lab, cex=cex.pch,
+                    xlab="", ylab = "", pch = pch, cex.lab = cex.lab, cex=cex.pch,
                     main=main, lty = lty, col = col, col.axis = col.axis, bg=pch.col,
                     axes=axes, add=add,...)
   if(!is.null(args.xaxis) & axes){
@@ -98,8 +98,8 @@ sprplot=function(rt, word.position, cond, dataframe, errbar=TRUE, whisker=.015, 
     if(is.null(args.text)){
       if(!is.null(args.xaxis))
         if(sum(grepl("at", names(args.xaxis)))==1) args.text<-list(at=args.xaxis$at)
-	if(is.null(xaxis.names.line)) diff.line=0.3
-	else diff.line=1-xaxis.names.line
+	if(is.null(xlab.line)) diff.line=0.3
+	else diff.line=1-xlab.line
       args.text<-c(if(length(text.n) %% length(col)==0) 
                   list(text=text, col=rep(col, each=length(text.n)/length(col)), side=1)
                   else list(text = text, col = "black"), args.text, list(line=text.n-diff.line, at=xvals))
@@ -107,15 +107,16 @@ sprplot=function(rt, word.position, cond, dataframe, errbar=TRUE, whisker=.015, 
       args.text<-c(text=list(text), lapply(args.text, 
                                            function(x){if(length(text.n) %% length(x)==0)
                                              x=rep(x, length(text.n)/length(x)) else x=x}))
-	  if(is.null(xaxis.names.line)) diff.line=0.3
-	  else diff.line=1-xaxis.names.line
+	  if(is.null(xlab,line)) diff.line=0.3
+	  else diff.line=1-xlab.line
       args.text = modifyList(list(side=1, line=text.n-diff.line, at=xvals, cex=cex.text), args.text)
       args.text = args.text[!sapply(args.text, is.null)]
     }
     do.call(mapply, c(mtext, args.text))
     axis(1, labels=rep("", length(args.text$at)), at=args.text$at)
   } else text.n<-1
-  title(xlab=if(is.null(xlab)) "x" else xlab, line = max(text.n) + 1.5, cex.lab=cex.lab)  
+  title(xlab=if(is.null(xlab)) word.position else xlab, line = max(text.n) + 1.5, cex.lab=cex.lab)  
+  title(ylab=if(is.null(ylab)) rt else ylab, line = ylab.line)
   if(legend){
     args.lg.temp<-list(x="topleft", y=NULL, legend=uniq.c,
                           pch = pch, lty = lty, col = col, pt.bg=pch.col)
