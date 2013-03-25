@@ -1,5 +1,5 @@
 bar<-function(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, conf.level=.95, xlab=NULL, ylab=NULL, main=NULL, 
-   		  bar.col="black", whisker=.015,args.errbar=NULL,legend=TRUE, legend.text=NULL, args.legend=NULL,legend.border=FALSE,
+ 			  bar.col="black", whisker=.015,args.errbar=NULL,legend=TRUE, legend.text=NULL, args.legend=NULL,legend.border=FALSE,
  			  box=TRUE, axes=!percentage, args.yaxis=NULL, mar=c(5,4,3,2),...){
     dv.name<-dv
 	dv<-dataframe[[dv]]
@@ -34,6 +34,7 @@ bar<-function(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, conf
 			args.legend<-args.legend.temp
 	} else if(legend & percentage){
 		if(is.null(legend.text)) 
+		title.legend<-factors[[1]]
 			legend.text<-c("1", "0")
 		args.legend.temp<-list(x="topright", bty=if(!legend.border)"n" else "o",
 							   inset=c(0,0), title=title.legend)
