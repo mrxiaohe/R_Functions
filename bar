@@ -23,21 +23,19 @@ bar<-function(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, conf
 	}
 	extras<-list(...)
 	if(legend & !percentage){
-		title.legend<-factors[[1]]
 		if(is.null(legend.text))
 			legend.text<-sort(unique(dataframe[[factors[1]]]))
 		args.legend.temp<-list(x="topright", bty=if(!legend.border)"n" else "o",
-							   inset=c(0,0), title=title.legend)
+							   inset=c(0,0))
 		if(is.list(args.legend))
 			args.legend<-modifyList(args.legend.temp, args.legend)
 		else 
 			args.legend<-args.legend.temp
 	} else if(legend & percentage){
 		if(is.null(legend.text)) 
-		title.legend<-factors[[1]]
 			legend.text<-c("1", "0")
 		args.legend.temp<-list(x="topright", bty=if(!legend.border)"n" else "o",
-							   inset=c(0,0), title=title.legend)
+							   inset=c(0,0))
 		if(is.list(args.legend))
 			args.legend<-modifyList(args.legend.temp, args.legend)
 		else 
