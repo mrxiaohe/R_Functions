@@ -25,11 +25,8 @@ trimdataVerMay22<-function(dataset, dv, factors=NULL, tr=3, rm=FALSE, min.val=NU
   } else crit<-cbind(crit.lo, crit.hi)[match(f, rownames(crit.lo)), ]
   rownames(crit)<-1:nr
   x<-cbind(x, crit)
-  x<-split(x, f)
-  dataset.id<-split(1:nr, f)
-  if(rm) xnew<-lapply(x, function(x) {mapply(function(x, lo, hi) {ifelse(x>hi|x<lo, NA, x)}, x=x[1:nd], lo=x[(nd+1):(2*nd)], hi=x[(2*nd+1):(3*nd)])})
-  else xnew<-lapply(x, function(x) {mapply(function(x, lo, hi) {ifelse(x>hi, hi, ifelse(x<lo, lo, x))}, x=x[1:nd], lo=x[(nd+1):(2*nd)], hi=x[(2*nd+1):(3*nd)])})
-  xnew<-as.data.frame(do.call(rbind, xnew)[order(unlist(dataset.id)),])
+  if(rm) xnew<-mapply(function(x, lo, hi) {ifelse(x>hi|x<lo, NA, x)}, x=x[1:nd], lo=x[(nd+1):(2*nd)], hi=x[(2*nd+1):(3*nd)])
+  else xnew<-mapply(function(x, lo, hi) {ifelse(x>hi, hi, ifelse(x<lo, lo, x))}, x=x[1:nd], lo=x[(nd+1):(2*nd)], hi=x[(2*nd+1):(3*nd)])
   colnames(xnew)<-paste(dv, "New", sep="")
   cbind(dataset, xnew)
 }
