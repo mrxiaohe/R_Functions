@@ -1,9 +1,10 @@
-trimdataVerMay22<-function(dataset, dv, factors, tr=3, rm=FALSE, min.val=NULL, max.val=NULL) {
+trimdataVerMay22<-function(dataset, dv, factors=NULL, tr=3, rm=FALSE, min.val=NULL, max.val=NULL) {
   x<-as.data.frame(dataset[, dv])
   colnames(x)<-dv
-  f<-factor(interaction(dataset[, factors]))
   nr<-nrow(x)
   nd<-ncol(x)
+  if(is.null(factors)) f<-as.factor(rep(1, nr))
+  else f<-factor(interaction(dataset[, factors]))
   if(sum(is.na(tr))>0) stop("'tr' cannot be NA")
   if(length(tr)!=nd&length(tr)!=1) stop("The # of values in 'tr' needs to be 1 or equal to the # of dependent variables to be trimmed.")
   if(!is.null(min.val)|!is.null(max.val)){
@@ -19,7 +20,9 @@ trimdataVerMay22<-function(dataset, dv, factors, tr=3, rm=FALSE, min.val=NULL, m
   x=as.data.frame(x)
   crit.lo<-mapply(function(x, tr) {tapply(x, f, function(x) c(mean(x, na.rm=T)-tr*sd(x, na.rm=T)))}, x=x, tr=tr)
   crit.hi<-mapply(function(x, tr) {tapply(x, f, function(x) c(mean(x, na.rm=T)+tr*sd(x, na.rm=T)))}, x=x, tr=tr)  
-  crit<-cbind(crit.lo, crit.hi)[match(f, rownames(crit.lo)), ]
+  if(is.null(dim(crit.lo))){
+    crit<-cbind(sapply(c(crit.lo, crit.hi), rep, each=nr))
+  } else crit<-cbind(crit.lo, crit.hi)[match(f, rownames(crit.lo)), ]
   rownames(crit)<-1:nr
   x<-cbind(x, crit)
   x<-split(x, f)
