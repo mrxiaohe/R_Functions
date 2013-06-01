@@ -1,10 +1,12 @@
 R_Functions
 ===========
 
-  1. `trimdata()` trims numerical data based on different factors. 
+###1. `trimdata()` 
 
   `trimdata(dataset, dv, factors = NULL, tr = 3, rm = FALSE, min.val = NULL, max.val = NULL)` 
-  
+
+This function trims numerical data based on different factors. 
+
 * `dataset`: the name of the dataset, in the form of data frame, in which data are stored.
   
 * `dv`: the name of the variable to be trimmed.
