@@ -1,13 +1,16 @@
 trimdata<-function(dataset, dv, factors=NULL, tr=3, rm=FALSE, min.val=NULL, max.val=NULL) {
 	DVNAME<-substitute(dv)
 	FNAMES<-substitute(factors)
-	if(tr<0) stop("'tr' cannot be negative")
+	if(tr<0) 
+		stop("'tr' cannot be negative")
 	if(!is.null(min.val)&&!is.null(max.val)){
 		if(min.val>=max.val) 
 			stop("If both min.val and max.val are specified,", 
 		              "min.val must be smaller than max.val.")}
-	if(length(DVNAME)>1) stop("'dv' only takes one variable")
-  	else DVNAME<-as.character(DVNAME)
+	if(length(DVNAME)>1) 
+		stop("'dv' only takes one variable")
+  	else 
+  		DVNAME<-as.character(DVNAME)
   	x<-dataset[[DVNAME]]
   	NUM_ORG<-sum(!is.na(x))
 	n<-length(x)
@@ -18,8 +21,7 @@ trimdata<-function(dataset, dv, factors=NULL, tr=3, rm=FALSE, min.val=NULL, max.
   		f<-dataset[[FNAMES]]
   	}else if(length(FNAMES)>1){
   		FNAMES<-as.character(FNAMES[-1L])
-  		f<-dataset[,FNAMES]
-  	}
+  		f<-dataset[,FNAMES]}
   	NUM_RM<-0
 	if(!is.null(min.val)){
         	x<-ifelse(x<min.val, NA, x)
@@ -30,18 +32,15 @@ trimdata<-function(dataset, dv, factors=NULL, tr=3, rm=FALSE, min.val=NULL, max.
       	fg<-interaction(f, lex.order=TRUE)
       	xbar<-as.vector(tapply(x, fg, mean, na.rm=TRUE))
       	stdev<-as.vector(tapply(x, fg, sd, na.rm=TRUE))
-      	clo<-xbar-tr*stdev
-      	chi<-xbar+tr*stdev
-      	clo<-clo[as.integer(fg)]
-      	chi<-chi[as.integer(fg)]
+      	clo<-(xbar-tr*stdev)[as.integer(fg)]
+      	chi<-(xbar+tr*stdev)[as.integer(fg)]
       	if(rm){
       		x<-ifelse(x<clo, NA, ifelse(x>chi, NA, x))
       		NUM_RM<-NUM_ORG-sum(!is.na(x))
       	}else{
       		xtemp<-ifelse(x<clo, clo, ifelse(x>chi, chi, x))
       		NUM_CHANGE<-sum(na.omit(x)!=na.omit(xtemp))
-      		x<-xtemp
-      	}
+      		x<-xtemp}
       	if(rm|!is.null(min.val)|!is.null(max.val))
       		cat(NUM_RM, " data points (", round(NUM_RM/n*100,2), "%) have been removed.\n", sep="")
       	if(exists("NUM_CHANGE"))
