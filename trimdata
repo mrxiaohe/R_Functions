@@ -1,43 +1,51 @@
-trimdata<-function(dataset, dv, factors, tr=3, min.val=NULL, max.val=NULL) {
-	x<-dataset[[dv]]
-	f<-factor(interaction(dataset[, factors]))
-	orig.id<-1:nrow(dataset)
-	nr<-nrow(dataset)
-	if(!is.null(min.val)) {
-		out.id<-which(x<min.val)
-		n.out<-length(out.id)
-	}
-	if(!is.null(max.val)){
-		if(!is.null(min.val))
-			out.id<-c(out.id, which(x>max.val))
-		else out.id<-which(x>max.val)
-		n.out<-length(out.id)
-	}
-	if(!is.null(min.val)|!is.null(max.val)){
-		if(length(n.out)>0)
-			keep.id<-orig.id[-out.id]
-		else
-			keep.id<-orig.id
-	} else keep.id<-orig.id
-	x<-x[keep.id]
-	f<-f[keep.id]
-	xbars<-tapply(x, list(f), mean)
-	SD<-tapply(x, list(f), sd)
-	xbars<-xbars[match(f,names(xbars))]
-	SD<-SD[match(f,names(SD))]
-	crit.lo<-xbars-tr*SD
-	crit.hi<-xbars+tr*SD
-	x.new<-ifelse(x>crit.hi, crit.hi, ifelse(x<crit.lo, crit.lo, x))
-	n.replaced<-sum(x!=x.new)
-	dataset<-dataset[keep.id,]
-	dataset<-cbind(dataset, x.new)
-	names(dataset)[ncol(dataset)]<-paste(dv, "_new", sep="")
-	if(exists("n.out")) {
-		n.out<-round(n.out*100/nr, 2)
-		print(paste(n.out, "% of observations have been removed", sep=""))	
-	}
-	
-	n.replaced<-round(n.replaced*100/nr, 2)
-	print(paste(n.replaced, "% of observations have been replaced", sep=""))	
-	dataset
+trimdata<-function(dataset, dv, factors=NULL, tr=3, rm=FALSE, min.val=NULL, max.val=NULL) {
+	DVNAME<-substitute(dv)
+	FNAMES<-substitute(factors)
+	if(tr<0) stop("'tr' cannot be negative")
+	if(!is.null(min.val)&&!is.null(max.val)){
+		if(min.val>=max.val) 
+			stop("If both min.val and max.val are specified,", 
+		              "min.val must be smaller than max.val.")}
+	if(length(DVNAME)>1) stop("'dv' only takes one variable")
+  	else DVNAME<-as.character(DVNAME)
+  	x<-dataset[[DVNAME]]
+  	NUM_ORG<-sum(!is.na(x))
+	n<-length(x)
+  	if(length(FNAMES)==0){
+  		f<-rep(1, n)
+  	}else if(length(FNAMES)==1){
+  		FNAMES<-as.character(FNAMES)
+  		f<-dataset[[FNAMES]]
+  	}else if(length(FNAMES)>1){
+  		FNAMES<-as.character(FNAMES[-1L])
+  		f<-dataset[,FNAMES]
+  	}
+  	NUM_RM<-0
+	if(!is.null(min.val)){
+        	x<-ifelse(x<min.val, NA, x)
+        	NUM_RM<-NUM_ORG-sum(!is.na(x))}
+	if(!is.null(max.val)){ 
+        	x<-ifelse(x>max.val, NA, x)
+        	NUM_RM<-NUM_ORG-sum(!is.na(x))}
+      	fg<-interaction(f, lex.order=TRUE)
+      	xbar<-as.vector(tapply(x, fg, mean, na.rm=TRUE))
+      	stdev<-as.vector(tapply(x, fg, sd, na.rm=TRUE))
+      	clo<-xbar-tr*stdev
+      	chi<-xbar+tr*stdev
+      	clo<-clo[as.integer(fg)]
+      	chi<-chi[as.integer(fg)]
+      	if(rm){
+      		x<-ifelse(x<clo, NA, ifelse(x>chi, NA, x))
+      		NUM_RM<-NUM_ORG-sum(!is.na(x))
+      	}else{
+      		xtemp<-ifelse(x<clo, clo, ifelse(x>chi, chi, x))
+      		NUM_CHANGE<-sum(na.omit(x)!=na.omit(xtemp))
+      		x<-xtemp
+      	}
+      	if(rm|!is.null(min.val)|!is.null(max.val))
+      		cat(NUM_RM, " data points (", round(NUM_RM/n*100,2), "%) have been removed.\n", sep="")
+      	if(exists("NUM_CHANGE"))
+      		cat(NUM_CHANGE, " data points (", round(NUM_CHANGE/n*100,2), "%) have been changed.\n", sep="")
+      	invisible(x)
 }
+  
