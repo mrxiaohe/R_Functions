@@ -54,7 +54,7 @@ The function will return an invisible vector of values of the same length as the
 
 ###2. `tsplot()`
 
-    tsplot(dv, ts, factors, dataset, errbar=TRUE, whisker=.015, cex.pch=1, pch.col=NULL, conf.level=.95, 
+    tsplot(dv, ts, factors=NULL, dataset, errbar=TRUE, whisker=.015, cex.pch=1, pch.col=NULL, conf.level=.95, 
            args.errbar=NULL, xlab=NULL, ylab=NULL, cex.lab=NULL, main=NULL, cex.main=NULL,text=NULL, cex.axis=NULL, 
            type="b", lty=1, col="black",pch=20, legend=TRUE, args.legend=NULL, axes=TRUE, ylim, bg.col=NULL, 
            grid.col=NULL, args.grid=NULL, mar=NULL, box.col=NULL, box.lwd=0.8, xaxp=NULL, args.xlab=NULL, 
@@ -64,7 +64,7 @@ This function can be used to plot a variety of data. It was originally intended 
 
 * `dv`: the outcome variable to be plotted.
 * `ts`: the time variable; can be other types of variables, such as a categorical variable with multiple levels.
-* `factors`: grouping factors; e.g., if a user specifies a 3-level variable for `factors`, then the resulting plot will have 3 separate lines.
+* `factors`: grouping factors; e.g., if a user specifies a 3-level variable for `factors`, then the resulting plot will have 3 separate lines. When `factors=NULL`, one line will be plotted.
 * `dataset`: the dataset, in data frame format, in which data are stored.
 * `errbar`: whether error bars are plot. Error bars can be plotted only if there are multiple observations per `factors * ts` combination. It can be further customized by setting the argument `args.errbar`.
 * `whisker`: the width of errbar whiskers.
@@ -95,30 +95,8 @@ This function can be used to plot a variety of data. It was originally intended 
 
 Example 1:
 
-    data(OBrienKaiser)   #This dataset is from the `car` library.
-    #install.packages("reshape")   #install this package to reshape the dataset.
-    library(reshape)
-    OBK<-melt(OBrienKaiser, id.vars=c("treatment", "gender"), variable_name="time")
-    head(OBK)
-    #     treatment gender  time value
-    #   1   control      M pre.1     1
-    #   2   control      M pre.1     4
-    #   3   control      M pre.1     5
-    #   4   control      F pre.1     5
-    #   5   control      F pre.1     3
-    #   6         A      M pre.1     7
-    #   ...
+In this example, we will use the `ChickWeight` dataset. We will plot the effect of diet type on chick weights across time. Each diet type will have its own line. The x-axis represents time, and the y-axis represents weight (in grams)
 
-    #The variable `time` represents different time points during the pre- and post-treatment phases as well 
-    #as the follow-up period. We will plot the variable `value` at different time points for the different
-    #treatment groups (control, A, and B).
-    
-    tsplot(value, time, treatment, OBK, errbar=F, col=2:4, pch=15:17, las=2, args.xlab=list(line=3.5), cex.lab=1.2)
-
-![plot](http://imageshack.us/a/img593/8871/rplot.png)
-
-Example 2:
-    
     data(ChickWeight)
     head(ChickWeight)
     #Grouped Data: weight ~ Time | Chick
@@ -140,3 +118,24 @@ Example 2:
            main="Effect of Diet Type on Chick Weight across Time"
     )
 ![plot](http://imageshack.us/a/img94/9724/rplot2.png)
+
+
+Example 2:
+
+We will reuse the `ChickWeight` dataset. In this example, let's plot the mean `weight` across different time points ignoring the factor `Diet`.
+
+    tsplot(dv=weight, ts=Time, factors=NULL, dataset=ChickWeight,
+            errbar=TRUE,   #we will plot error bars
+            args.errbar=list(lwd=0.7),
+            whisker=0.008,
+            text=paste("T", 1:12, sep=""),
+            col=2, 
+            pch=23, 
+            pch.col="blue", 
+            cex.pch=0.7,
+            legend=FALSE,
+            ylab="Weight (g)",
+            main="Chick Weight across Time"
+    )
+
+![plot](http://img812.imageshack.us/img812/9443/screenshot20130602at908.png)
