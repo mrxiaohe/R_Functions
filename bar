@@ -1,7 +1,8 @@
-bar<-function(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, half.errbar=TRUE, conf.level=.95, xlab=NULL, 
-		ylab=NULL, main=NULL, names.arg=NULL, bar.col="black", whisker=.015,args.errbar=NULL,legend=TRUE, 
-		legend.text=NULL, args.legend=NULL,legend.border=FALSE, box=TRUE, axes=!percentage, args.yaxis=NULL, 
+bar<-function(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, half.errbar=TRUE, conf.level=.95, 
+		xlab=NULL, ylab=NULL, main=NULL, names.arg=NULL, bar.col="black", whisker=.015,args.errbar=NULL,
+		legend=TRUE, legend.text=NULL, args.legend=NULL,legend.border=FALSE, box=TRUE, args.yaxis=NULL, 
 		mar=c(5,4,3,2),...){
+	axes=!percentage
 	dv.name<-substitute(dv)
 	if(length(dv.name)>1) stop("'dv' only takes one variabble")
 	dv.name<-as.character(dv.name)
@@ -14,8 +15,8 @@ bar<-function(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, half
 		factors<-as.character(fnames[-1L])
 		nf<-length(factors)
 	}
-	if(nf>2) stop("This function accepts no more than 2 factors \n", 
-			"-i.e., it only plots one-way or two-way designs.")
+	if(nf>2) stop("This function accepts no more than 2 factors \n",
+			"\t-i.e., it only plots one-way or two-way designs.")
 	if(percentage & errbar){
 		warning("percentage=TRUE; error bars were not plotted")
 		errbar<-FALSE
@@ -23,7 +24,7 @@ bar<-function(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, half
 	if(!percentage) xbars<-tapply(dv, dataframe[,factors], mean, na.rm=TRUE)
 	else {
 		xbars<-tapply(dv, list(interaction(dataframe[,factors], lex.order=TRUE)), mean, na.rm=TRUE)
-		if(sum(xbars!=0 & xbars!=1)>0) 
+		if(sum(na.omit(dv)!=0&na.omit(dv)!=1)>0) 
 			stop("Data points in 'dv' need to be 0 or 1 in order to set 'percentage' to TRUE")
 		xbars<-rbind(xbars, 1-xbars)*100
 	}
