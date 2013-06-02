@@ -19,7 +19,7 @@ This function trims numerical data based on different factors.
 
 The function will return an invisible vector of values of the same length as the original variable, which can be saved into an R object or appended to the original data frame.
   
-  Example: 
+####Example: 
 
     data(ChickWeight)
     (trimdata(ChickWeight, dv=weight, factors=c(Time, Diet), tr=2, rm=TRUE))
@@ -93,7 +93,7 @@ This function can be used to plot a variety of data. It was originally intended 
 * `args.xlab`|`args.ylab`|`args.xaxis`|`args.yaxis`: additional arguments for x- and y- axis labels and x- and y- axes.
 * `...`: additional arguments.
 
-Example 1:
+####Example 1:
 
 In this example, we will use the `ChickWeight` dataset. We will plot the effect of diet type on chick weights across time. Each diet type will have its own line. The x-axis represents time, and the y-axis represents weight (in grams)
 
@@ -120,7 +120,7 @@ In this example, we will use the `ChickWeight` dataset. We will plot the effect 
 ![plot](http://imageshack.us/a/img94/9724/rplot2.png)
 
 
-Example 2:
+####Example 2:
 
 We will reuse the `ChickWeight` dataset. In this example, let's plot the mean `weight` across different time points ignoring the factor `Diet`.
 
