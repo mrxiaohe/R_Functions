@@ -139,3 +139,62 @@ We will reuse the `ChickWeight` dataset. In this example, let's plot the mean `w
     )
 
 ![plot](http://img812.imageshack.us/img812/9443/screenshot20130602at908.png)
+
+
+###3. `bar()`
+
+This is a function wrapper for `barplot()` and includes some added features that may be convenient for many people.
+
+    bar(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, half.errbar=TRUE, conf.level=0.95, 
+        xlab=NULL, ylab=NULL, main=NULL, names.arg=NULL, bar.col="black", whisker=0.015, args.errbar=NULL, 
+        legend=TRUE, legend.text=NULL, args.legend=NULL, legend.border=FALSE, box=TRUE, args.yaxis=NULL, 
+        mar=c(5, 4, 3, 2), ...) 
+
+* `dv`: numerical values to be plotted.
+* `factors`: grouping factors; a maximum of two factors can be specified.
+* `dataframe`: a data frame object in which data are stored.
+* `percentage`: whether the plot will be on the percentage scale. This option works only if the `dv` contains 0's and 1's.
+* `errbar`: whether error bars are plotted. Error bars are NOT plotted when `percentage=TRUE`.
+* `half.errbar`: whether half error bars or full error bars are plotted. 
+* `conf.level`: confidence level used for constructing error bars.
+* `legend`: whether a legend is plotted.
+* `legend.text`: a string vector containing texts for the legend.
+* `args.legend`: further customization for the legend.
+* `legend.border`: whether or not the border of the legend is plotted.
+* `box`: whether the plot has a border.
+* `args.xaxis`: additional customization for the y-axis.
+* `mar`: margin widths.
+* `...`: additional optional arguments.
+
+####Example:
+
+We will use the dataset `WeightLoss` from the package `car` for this example. First, we will transform the dataset from the wide form to the long form using `melt()` from the `reshape` package.
+
+    #install.packages("reshape")    #install `reshape` if you don't have it.
+    data(WeightLoss)
+    WL<-melt(WeightLoss[,1:4], id.vars="group", variable_name="week")
+    head(WL)
+        group week value
+    1 Control  wl1     4
+    2 Control  wl1     4
+    3 Control  wl1     4
+    4 Control  wl1     3
+    5 Control  wl1     5
+    6 Control  wl1     6
+    ...
+
+The first column of `WL` contains group information: Control group, Diet only group, and Diet + Exercise group. The second column contains time information - `wl1`, `wl2`, and `wl3` are for Month 1, Month 2, and Month 3, respectively. The third column contains weight loss in lbs.
+
+    bar(value, c(week, group), WL,
+        main="Weight Loss across Time in 3 Experimental Groups", 
+        xlab="Experimental group", 
+        ylab="Weight loss (lbs)",
+        legend.text=c("Week 1", "Week 2", "Week 3"), 
+        args.legend=list(x="topleft"), 
+        names.arg=c("Control", "Diet only", "Diet + exercise"), 
+        col=gray(c(0.1,0.5,0.9))
+    )
+
+![plot](http://img17.imageshack.us/img17/5827/screenshot20130602at439.png)
+
+
