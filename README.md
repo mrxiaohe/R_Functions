@@ -93,7 +93,7 @@ This function can be used to plot a variet of data. It was originally intended t
 * `args.xlab`|`args.ylab`|`args.xaxis`|`args.yaxis`: additional arguments for x- and y- axis labels and x- and y- axes.
 * `...`: Additional arguments.
 
-Example:
+Example 1:
 
     data(OBrienKaiser)   #This dataset is from the `car` library.
     #install.packages("reshape")   #install this package to reshape the dataset.
@@ -114,4 +114,29 @@ Example:
     #treatment groups (control, A, and B).
     
     tsplot(value, time, treatment, OBK, errbar=F, col=2:4, pch=15:17, las=2, args.xlab=list(line=3.5), cex.lab=1.2)
+
+![plot](http://imageshack.us/a/img593/8871/rplot.png)
+
+Example 2:
     
+    data(ChickWeight)
+    head(ChickWeight)
+    #Grouped Data: weight ~ Time | Chick
+    #  weight Time Chick Diet
+    #1     42    0     1    1
+    #2     51    2     1    1
+    #3     59    4     1    1
+    #4     64    6     1    1
+    #5     76    8     1    1
+    #6     93   10     1    1
+    #...
+
+    tsplot(weight, Time, Diet, ChickWeight,
+           errbar=FALSE,
+           text=paste("T", 1:12, sep=""),
+           col=2:5,
+           args.legend=list(x="bottomright", legend=paste("Diet", 1:4), bty="n"),
+           ylab="Weight (g)",
+           main="Effect of Diet Type on Chick Weight across Time"
+    )
+![plot](http://imageshack.us/a/img94/9724/rplot2.png)
