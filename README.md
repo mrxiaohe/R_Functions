@@ -82,16 +82,16 @@ This function can be used to plot a variet of data. It was originally intended t
 * `col`: line/point outline color.
 * `pch`: point type.
 * `legend`: whether a legend is plotted. It can be customized by setting `args.legend`.
-* `axes`: whether the x- and y- axes are plot.
+* `axes`: whether the x- and y- axes are plotted.
 * `ylim`: y limits.
 * `bg.col`: background color of the plot area.
 * `grid.col`: color of horizontal grid. It can be customized by setting `args.grid`.
 * `mar`: plot margins.
-* `box.col`: plot border color.
-* `box.lwd`: plot border width.
-* `xaxp`: A vector of the form `c(x1, x2, n)` giving the coordinates of the extreme tick marks and the number of intervals between tick-marks.
+* `box.col`: color of plot border.
+* `box.lwd`: width of plot border.
+* `xaxp`: a vector of the form `c(x1, x2, n)` giving the coordinates of the extreme tick marks and the number of intervals between tick-marks.
 * `args.xlab`|`args.ylab`|`args.xaxis`|`args.yaxis`: additional arguments for x- and y- axis labels and x- and y- axes.
-* `...`: Additional arguments.
+* `...`: additional arguments.
 
 Example 1:
 
