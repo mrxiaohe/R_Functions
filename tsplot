@@ -1,0 +1,143 @@
+tsplot<-function(dv, ts, factors, dataset, errbar=TRUE, whisker=.015, cex.pch=1, pch.col=NULL, conf.level=.95, args.errbar=NULL, xlab=NULL, ylab=NULL, cex.lab=NULL, main=NULL, cex.main=NULL,text=NULL, cex.axis=NULL, type="b", lty=1, col="black", pch=20, legend=TRUE, args.legend=NULL, axes=TRUE, ylim, bg.col=NULL, grid.col=NULL, args.grid=NULL, mar=NULL, box.col=NULL, box.lwd=0.8, xaxp=NULL, args.xlab=NULL, args.ylab=NULL, args.xaxis=NULL, args.yaxis=NULL,...){
+	DVNAME<-substitute(dv)
+	if(length(DVNAME)>1) stop("'dv' only takes one variable")
+  	else DVNAME<-as.character(DVNAME)
+  	x<-dataset[[DVNAME]]
+	TSNAME<-substitute(ts)
+	if(length(TSNAME)>1) stop("'ts' only takes one variable")
+  	else TSNAME<-as.character(TSNAME)
+	ts<-dataset[[TSNAME]]
+	FNAMES<-substitute(factors)
+  	if(length(FNAMES)==0){
+  		f<-rep(1, n)
+  	}else if(length(FNAMES)==1){
+  		FNAMES<-as.character(FNAMES)
+  		f<-dataset[[FNAMES]]
+  	}else if(length(FNAMES)>1){
+  		FNAMES<-as.character(FNAMES[-1L])
+  		f<-dataset[,FNAMES]}
+	if(type=="l") pch=NA
+	g<-factor(interaction(f, lex.order=TRUE))
+	glevels<-seq_along(levels(g))
+	tslevels<-sort(unique(ts))
+  	xvals<-seq_along(tslevels)	
+  	avg<-t(tapply(x, list(g, ts), mean, na.rm=TRUE))
+	if(is.null(xaxp) & length(xvals)<=20){
+		xaxp<-c(1, max(xvals), max(xvals)-1)}
+  	if(errbar){
+   		se<-t(tapply(x, list(g, ts), sd, na.rm=TRUE)/sqrt(tapply(x, list(g, ts), length)))
+      		cilo<-avg-qnorm(conf.level)*se
+      		cihi<-avg+qnorm(conf.level)*se
+  	}else  cilo<-cihi<-avg
+  	ylim<-if(missing(ylim)) range(c(cilo,cihi), na.rm=TRUE) else ylim
+  	if(!is.null(mar)) 
+		par(mar=mar)
+  	add=F
+  	if(!is.null(bg.col)){
+    		matplot(x=xvals, y=avg, axes=FALSE, ylim=ylim, xlab="", ylab="", tck=0,
+			cex.lab=cex.lab, type="n", main=main, cex.main=cex.main, xaxp=xaxp, ...)
+    		xycoord<-as.list(par("usr")[c(1,3,2,4)])
+		args.bg.col<-list(col=bg.col)
+    		do.call(rect, c(xycoord, args.bg.col))
+    		add=TRUE
+    	}
+  	if(!is.null(grid.col)){
+    		if(!add)
+      		matplot(x=xvals, y=avg, axes=FALSE, ylim=ylim, xlab="", ylab="", tck=0,
+              		cex.lab=cex.lab, type="n", main=main, cex.main=cex.main, xaxp=xaxp, ...)
+		if(is.null(args.grid)|!is.list(args.grid))
+      			args.grid<-list(col=grid.col, h=pretty(ylim), lwd=0.8, lty=1) 
+		else 
+			args.grid<-modifyList(list(col=grid.col, h=pretty(ylim), lwd=0.8, lty=1), args.grid)
+      		do.call(abline, args.grid)
+		add=TRUE
+	}
+	if(is.null(bg.col)&&is.null(grid.col)){
+		matplot(x=xvals, y=avg, axes=axes, ylim=ylim, xlab="", ylab="", col.axis="transparent", tck=0,
+			cex.lab=cex.lab, type="n", main=main, cex.main=cex.main, xaxp=xaxp, ...)
+		add<-TRUE
+	}
+	args.matplot<-list(x=xvals, y=avg, ylim=list(ylim), type=type, xlab="", ylab="", pch=pch, cex.lab=cex.lab, 
+				cex=cex.pch, main=main, lty=lty, col=col, bg=pch.col, axes=axes, add=add,...)
+	if(!axes||length(xvals)!=length(text)) 
+		text<-NULL
+	if(axes&&!is.null(text)){
+		if(is.null(args.xaxis)){
+			args.xaxis<-list(side=1, labels=text, tck=-0.02, at=xvals, cex.axis=cex.axis, xaxp=xaxp,...) 
+		}else{
+			args.temp<-list(side=1, labels=text, tck=-0.02, at=xvals, cex.axis=cex.axis, xaxp=xaxp,...) 
+			args.xaxis<-modifyList(args.temp, args.xaxis)
+		}
+      		do.call(axis, args.xaxis)
+	}else if(axes&&is.null(text)) {
+		if(is.null(args.xaxis)){
+			args.xaxis<-list(side=1, cex.axis=cex.axis, labels=tslevels, at=xvals, xaxp=xaxp,...)
+		}else{
+			args.temp<-list(side=1, cex.axis=cex.axis, labels=tslevels, at=xvals, xaxp=xaxp,...)
+			args.xaxis<-modifyList(args.temp, args.xaxis)
+		}
+		do.call(axis, args.xaxis)
+	}
+  	if(axes){
+		if(is.null(args.yaxis)){
+			args.yaxis<-list(side=2, cex.axis=cex.axis,...)
+		}else{
+			args.temp<-list(side=2, cex.axis=cex.axis,...)
+			args.yaxis<-modifyList(args.temp, args.yaxis)
+		}
+    		do.call(axis, args.yaxis)
+	}
+	xlab<-if(is.null(xlab)) TSNAME else xlab
+	if(!is.null(args.xlab)){
+		args.xlab<-modifyList(list(cex.lab=cex.lab, xlab=xlab), args.xlab)
+		do.call("title", args.xlab)
+	} else title(xlab=xlab, cex.lab=cex.lab,...) 
+	ylab<-if(is.null(ylab)) DVNAME else ylab
+	if(!is.null(args.ylab)){
+		args.ylab<-modifyList(list(cex.lab=cex.lab, ylab=ylab), args.ylab)
+		do.call("title", args.ylab)
+	} else title(ylab=ylab, cex.lab=cex.lab,...) 
+  	if(legend){
+    		args.legend.temp<-list(x="topleft", y=NULL, legend=levels(g),
+			pch=pch, lty=lty, col=col, pt.bg=pch.col)
+		args.legend<-if(is.null(args.legend)|!is.list(args.legend)) args.legend.temp 
+			else if(is.list(args.legend)) modifyList(args.legend.temp, args.legend)
+    		args.legend<-args.legend[!sapply(args.legend, is.null)]
+    		do.call("legend", args.legend)}
+  	if(errbar){
+		errbars<-function(xvals, cilo, cihi,whisker, nc, args.errbar = NULL) {
+  			fixedArgs.bar<-list(matlines, x=list(xvals), y=lapply(split(t(do.call("rbind", 
+                       		list(cihi, cilo))),1:nc),matrix, nrow=2, byrow=T))
+	  		allArgs.bar<-c(fixedArgs.bar, args.errbar)
+  			whisker.len<-whisker*(par("usr")[2] - par("usr")[1])/2
+  			whiskers<-rbind((xvals - whisker.len)[1,], (xvals + whisker.len)[1,])
+	  		fixedArgs.lo<-list(matlines, x=list(whiskers), y=lapply(split(t(do.call("rbind", 
+     	                 		list(cilo, cilo))), 1:nc), matrix, nrow=2, byrow=T))
+  			allArgs.bar.lo<-c(fixedArgs.lo, args.errbar)
+  			fixedArgs.hi<-list(matlines, x=list(whiskers), y=lapply(split(t(do.call("rbind", 
+                      		list(cihi, cihi))), 1:nc), matrix, nrow=2, byrow=T))
+	  		allArgs.bar.hi<-c(fixedArgs.hi, args.errbar)  
+  			invisible(do.call(mapply, allArgs.bar))
+  			invisible(do.call(mapply, allArgs.bar.lo))
+	 	 	invisible(do.call(mapply, allArgs.bar.hi))}
+    		args.errbar.temp<-list(col=col,lty=lty,pch=20)
+    		args.errbar<-if(is.null(args.errbar)|!is.list(args.errbar)) args.errbar.temp
+                 	   else if(is.list(args.errbar)) modifyList(args.errbar.temp, args.errbar)
+    		args.errbar<-args.errbar[!sapply(args.errbar, is.null)]
+    		errbars(xvals=rbind(xvals, xvals), cilo = cilo, cihi = cihi, 
+          whisker = whisker, args.errbar = args.errbar, nc = length(glevels))}
+	args.matplot<-args.matplot[!sapply(args.matplot, is.null)]
+	x<-args.matplot$x
+	y<-args.matplot$y
+	DIM<-dim(y)
+	y<-split(as.vector(y), f=rep(1:DIM[2], each=DIM[1]))
+	y.na<-lapply(y, is.na)
+	x<-split(rep(x, DIM[2]), f=rep(1:DIM[2], each=DIM[1]))
+	y<-mapply(function(x1, x2) x1[!x2], x1=y, x2=y.na, SIMPLIFY=FALSE)
+	x<-mapply(function(x1, x2) x1[!x2], x1=x, x2=y.na, SIMPLIFY=FALSE)
+	args.matplot$x<-x
+	args.matplot$y<-y
+	invisible(do.call(mapply, c(matplot, args.matplot)))
+	if(!is.null(box.col))
+		box(col=box.col, lwd=box.lwd)
+}
