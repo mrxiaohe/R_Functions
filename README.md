@@ -60,7 +60,7 @@ The function will return an invisible vector of values of the same length as the
            grid.col=NULL, args.grid=NULL, mar=NULL, box.col=NULL, box.lwd=0.8, xaxp=NULL, args.xlab=NULL, 
            args.ylab=NULL, args.xaxis=NULL, args.yaxis=NULL,...)
 
-This function can be used to plot a variet of data. It was originally intended to plot time series data. The x-axis represents different time points, and the y-axis represents the outcome variables. One convenient feature of the function is that it averages the outcome variable across different conditions and across time.
+This function can be used to plot a variety of data. It was originally intended to plot time series data. The x-axis represents different time points, and the y-axis represents the outcome variables. One convenient feature of the function is that it averages the outcome variable across different conditions and across time. In addition, it can plot error bars if needed.
 
 * `dv`: the outcome variable to be plotted.
 * `ts`: the time variable; can be other types of variables, such as a categorical variable with multiple levels.
