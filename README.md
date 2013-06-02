@@ -171,6 +171,7 @@ This is a function wrapper for `barplot()` and includes some added features that
 We will use the dataset `WeightLoss` from the package `car` for this example. First, we will transform the dataset from the wide form to the long form using `melt()` from the `reshape` package.
 
     #install.packages("reshape")    #install `reshape` if you don't have it.
+    library(reshape)
     data(WeightLoss)
     WL<-melt(WeightLoss[,1:4], id.vars="group", variable_name="week")
     head(WL)
