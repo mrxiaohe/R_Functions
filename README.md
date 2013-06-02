@@ -51,6 +51,7 @@ The function will return an invisible vector of values of the same length as the
     #[576] 234 264 264
 
 
+
 ###2. `tsplot()`
 
     tsplot(dv, ts, factors, dataset, errbar=TRUE, whisker=.015, cex.pch=1, pch.col=NULL, conf.level=.95, 
@@ -91,3 +92,26 @@ This function can be used to plot a variet of data. It was originally intended t
 * `xaxp`: A vector of the form `c(x1, x2, n)` giving the coordinates of the extreme tick marks and the number of intervals between tick-marks.
 * `args.xlab`|`args.ylab`|`args.xaxis`|`args.yaxis`: additional arguments for x- and y- axis labels and x- and y- axes.
 * `...`: Additional arguments.
+
+Example:
+
+    data(OBrienKaiser)   #This dataset is from the `car` library.
+    #install.packages("reshape")   #install this package to reshape the dataset.
+    library(reshape)
+    OBK<-melt(OBrienKaiser, id.vars=c("treatment", "gender"), variable_name="time")
+    head(OBK)
+    #     treatment gender  time value
+    #   1   control      M pre.1     1
+    #   2   control      M pre.1     4
+    #   3   control      M pre.1     5
+    #   4   control      F pre.1     5
+    #   5   control      F pre.1     3
+    #   6         A      M pre.1     7
+    #   ...
+
+    #The variable `time` represents different time points during the pre- and post-treatment phases as well 
+    #as the follow-up period. We will plot the variable `value` at different time points for the different
+    #treatment groups (control, A, and B).
+    
+    tsplot(value, time, treatment, OBK, errbar=F, col=2:4, pch=15:17, las=2, args.xlab=list(line=3.5), cex.lab=1.2)
+    
