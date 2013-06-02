@@ -32,7 +32,12 @@ tsplot<-function(dv, ts, factors, dataset, errbar=TRUE, whisker=.015, cex.pch=1,
    		se<-t(tapply(x, list(g, ts), sd, na.rm=TRUE)/sqrt(tapply(x, list(g, ts), length)))
       		cilo<-avg-qnorm(conf.level)*se
       		cihi<-avg+qnorm(conf.level)*se
-  	}else  cilo<-cihi<-avg
+		if(sum(as.vector(tapply(x, list(g, ts), length)==1))>0){
+			warning("Error bars not created: insufficient data points in some conditions")
+			errbar<-FALSE
+		}
+  	}
+  	if(!errbar) cilo<-cihi<-avg
   	ylim<-if(missing(ylim)) range(c(cilo,cihi), na.rm=TRUE) else ylim
   	if(!is.null(mar)) 
 		par(mar=mar)
