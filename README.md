@@ -3,7 +3,7 @@ R_Functions
 
 ###1. `trimdata()` 
 
-  `trimdata(dataset, dv, factors = NULL, tr = 3, rm = FALSE, min.val = NULL, max.val = NULL)` 
+    trimdata(dataset, dv, factors = NULL, tr = 3, rm = FALSE, min.val = NULL, max.val = NULL)
 
 This function trims numerical data based on different factors. 
 
@@ -49,3 +49,45 @@ The function will return an invisible vector of values of the same length as the
     #[526] 156 173 210 231 238  41  53  66  79 100 123 148 157 168 185 210 205  39  50  62  80 104 125 154 170
     #[551] 222 261 303 322  40  53  64  85 108 128 152 166 184 203 233 237  41  54  67  84 105 122 155 175 205
     #[576] 234 264 264
+
+
+###2. `tsplot()`
+
+    tsplot(dv, ts, factors, dataset, errbar=TRUE, whisker=.015, cex.pch=1, pch.col=NULL, conf.level=.95, 
+           args.errbar=NULL, xlab=NULL, ylab=NULL, cex.lab=NULL, main=NULL, cex.main=NULL,text=NULL, cex.axis=NULL, 
+           type="b", lty=1, col="black",pch=20, legend=TRUE, args.legend=NULL, axes=TRUE, ylim, bg.col=NULL, 
+           grid.col=NULL, args.grid=NULL, mar=NULL, box.col=NULL, box.lwd=0.8, xaxp=NULL, args.xlab=NULL, 
+           args.ylab=NULL, args.xaxis=NULL, args.yaxis=NULL,...)
+
+This function can be used to plot a variet of data. It was originally intended to plot time series data. The x-axis represents different time points, and the y-axis represents the outcome variables. One convenient feature of the function is that it averages the outcome variable across different conditions and across time.
+
+* `dv`: the outcome variable to be plotted.
+* `ts`: the time variable; can be other types of variables, such as a categorical variable with multiple levels.
+* `factors`: grouping factors; e.g., if a user specifies a 3-level variable for `factors`, then the resulting plot will have 3 separate lines.
+* `dataset`: the dataset, in data frame format, in which data are stored.
+* `errbar`: whether error bars are plot. Error bars can be plotted only if there are multiple observations per `factors * ts` combination. It can be further customized by setting the argument `args.errbar`.
+* `whisker`: the width of errbar whiskers.
+* `cex.pch`: point size.
+* `pch.col`: fill color of points.
+* `conf.level`: confidence level for the error bars.
+* `xlab`|`ylab`: x- and y- axis labels.
+* `cex.lab`: label size.
+* `main`: main title.
+* `cex.main`: main title size.
+* `text`: annotations for the x-axis.
+* `cex.axis`: size of annotations (for both x-axis and y-axis)
+* `type`: plot type.
+* `lty`: line type.
+* `col`: line/point outline color.
+* `pch`: point type.
+* `legend`: whether a legend is plotted. It can be customized by setting `args.legend`.
+* `axes`: whether the x- and y- axes are plot.
+* `ylim`: y limits.
+* `bg.col`: background color of the plot area.
+* `grid.col`: color of horizontal grid. It can be customized by setting `args.grid`.
+* `mar`: plot margins.
+* `box.col`: plot border color.
+* `box.lwd`: plot border width.
+* `xaxp`: A vector of the form `c(x1, x2, n)` giving the coordinates of the extreme tick marks and the number of intervals between tick-marks.
+* `args.xlab`|`args.ylab`|`args.xaxis`|`args.yaxis`: additional arguments for x- and y- axis labels and x- and y- axes.
+* `...`: Additional arguments.
