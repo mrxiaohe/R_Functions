@@ -1,4 +1,4 @@
-tsplot<-function(dv, ts, factors, dataset, errbar=TRUE, whisker=.015, cex.pch=1, pch.col=NULL, conf.level=.95, 
+tsplot<-function(dv, ts, factors=NULL, dataset, errbar=TRUE, whisker=.015, cex.pch=1, pch.col=NULL, conf.level=.95, 
 		 args.errbar=NULL, xlab=NULL, ylab=NULL, cex.lab=NULL, main=NULL, cex.main=NULL,text=NULL, 
 		 cex.axis=NULL, type="b", lty=1, col="black", pch=20, legend=TRUE, args.legend=NULL, axes=TRUE, 
 		 ylim, bg.col=NULL, grid.col=NULL, args.grid=NULL, mar=NULL, box.col=NULL, box.lwd=0.8, xaxp=NULL, 
@@ -13,7 +13,7 @@ tsplot<-function(dv, ts, factors, dataset, errbar=TRUE, whisker=.015, cex.pch=1,
 	ts<-dataset[[TSNAME]]
 	FNAMES<-substitute(factors)
   	if(length(FNAMES)==0){
-  		f<-rep(1, n)
+  		f<-rep(1, length(x))
   	}else if(length(FNAMES)==1){
   		FNAMES<-as.character(FNAMES)
   		f<-dataset[[FNAMES]]
