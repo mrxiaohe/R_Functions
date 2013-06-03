@@ -60,16 +60,16 @@ bar<-function(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, half
 	else if(!errbar) ymax<-max(xbars) + max(xbars)/20
 	if(!percentage){
 		args.barplot<-list(beside=TRUE, height=xbars, ylim=c(0, ymax), main=main, names.arg=names.arg,
-						   col=hcl(h=seq(0,270, 270/(length(unique(dataframe[[factors[1]]]))))[-length(unique(dataframe[[factors[1]]]))]),
-						   legend.text=legend.text, args.legend=args.legend, xpd=TRUE,
-						   xlab=if(is.null(xlab)) factors[length(factors)] else xlab,
-						   ylab=if(is.null(ylab)) dv.name else ylab, axes=axes)
+				col=hcl(h=seq(0,270, 270/(length(unique(dataframe[[factors[1]]]))))[-length(unique(dataframe[[factors[1]]]))]),
+				legend.text=legend.text, args.legend=args.legend, xpd=TRUE,
+				xlab=if(is.null(xlab)) factors[length(factors)] else xlab,
+				ylab=if(is.null(ylab)) dv.name else ylab, axes=axes)
 	}else{
 		args.barplot<-list(beside=TRUE, height=xbars, ylim=c(0, ymax),  main=main, names.arg=names.arg,
-						   col=hcl(h=seq(0,270, 270/(length(unique(dataframe[[factors[1]]]))))[-length(unique(dataframe[[factors[1]]]))]),
-						   legend.text=legend.text, args.legend=args.legend, xpd=TRUE,
-						   xlab=if(is.null(xlab)) " "[length(factors)] else xlab,
-						   ylab=if(is.null(ylab)) "percentage" else ylab, axes=axes)		
+				col=hcl(h=seq(0,270, 270/(length(unique(dataframe[[factors[1]]]))))[-length(unique(dataframe[[factors[1]]]))]),
+				legend.text=legend.text, args.legend=args.legend, xpd=TRUE,
+				xlab=if(is.null(xlab)) " "[length(factors)] else xlab,
+				ylab=if(is.null(ylab)) "percentage" else ylab, axes=axes)		
 	}
 	args.barplot<-modifyList(args.barplot, extras)
 	errbars = function(xvals, cilo, cihi, whisker, nc, args.errbar = NULL, half.errbar=TRUE) {
