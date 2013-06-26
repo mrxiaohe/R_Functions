@@ -225,7 +225,7 @@ We will create a mock dataset:
     #Mediator:    M  =  m 
     #SAMPLE SIZE:  20 
     #BOOTSTRAP SAMPLES:  5000 
-    
+
     #DIRECT AND TOTAL EFFECTS
     #         Estimate Std. Error t value   Pr(>|t|)
     #b(Y~X)   -1.60368    0.17690 -9.0656 3.9527e-08
@@ -238,5 +238,5 @@ We will create a mock dataset:
     #Sobel:   0.92325     0.4088 2.2584 0.12201 1.7245  0.02392
 
     #BOOTSTRAP RESULTS FOR INDIRECT EFFECT
-    #         Estimate Std. Error      cilo    cihi       p
-    #Effect:   0.76317    0.32258 -0.055403 -0.3418 0.04160
+    #         Estimate Std. Error     cilo   cihi       p
+    #Effect:    0.7558    0.32578 0.013211 1.2368 0.04520
