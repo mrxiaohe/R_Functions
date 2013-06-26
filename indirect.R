@@ -1,6 +1,6 @@
 #Tests for Indirect effect using the percentile bootstrap method and the sobel's method
 
-indirect <- function(iv, m, dv, data, nboot=500, alpha=.05, stand=T, seed=1){
+indirect <- function(iv, m, dv, data, nboot=500, alpha=.05, stand=FALSE, seed=5){
   if(seed)
     	set.seed(seed)    
     x   <- data[, c(iv, m, dv)]
