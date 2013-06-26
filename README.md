@@ -199,3 +199,43 @@ The first column of `WL` contains group information: Control group, Diet only gr
 ![plot](http://img17.imageshack.us/img17/5827/screenshot20130602at439.png)
 
 
+
+###4. `indirect()` 
+
+This function tests indirect effects by using the percentile bootstrap method and the Sobel's method (based on Andrew Hayes' SPSS macro)
+
+    indirect(iv, m, dv, data, nboot=5000, alpha=0.05, stand=TRUE, seed=1)
+    
+####Example:
+
+We will create a mock dataset:
+    set.seed(1)
+    mock <- data.frame(iv = sort(rnorm(20)),
+                       m  = sort(rlnorm(20)),
+                       dv = sort(rlnorm(20), TRUE)
+                       )
+    indirect("iv", "m", "dv", mock, nboot=5000)
+                       
+    Tests for Indirect Effects
+
+    Dependent:   Y  =  dv 
+    Independent: X  =  iv 
+    Mediator:    M  =  m 
+    SAMPLE SIZE:  20 
+    BOOTSTRAP SAMPLES:  5000 
+    
+    DIRECT AND TOTAL EFFECTS
+             Estimate Std. Error t value   Pr(>|t|)
+    b(Y~X)   -1.60368    0.17690 -9.0656 3.9527e-08
+    b(M~X)    0.94814    0.12315  7.6992 4.2118e-07
+    b(Y~M.X) -2.52693    0.27728 -9.1133 5.9302e-08
+    b(Y~X.M)  0.97374    0.25613  3.8018  0.0014254
+
+    INDIRECT EFFECT AND SIGNIFICANCE USING NORMAL DISTRIBUTION
+               Value Std. Error      z    cilo   cihi Pr(>|z|)
+    Sobel:   0.92325     0.4088 2.2584 0.12201 1.7245  0.02392
+
+    BOOTSTRAP RESULTS FOR INDIRECT EFFECT
+             Estimate Std. Error      cilo    cihi       p
+    Effect:   0.76317    0.32258 -0.055403 -0.3418 0.04160
+
