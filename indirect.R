@@ -1,4 +1,4 @@
-#Tests for Indirect effect using the percentile bootstrap method and the sobel's method
+#Tests for Indirect effect using the percentile bootstrap method and the sobel method
 indirect <- function(iv, m, dv, data, nboot=5000, alpha=.05, stand=F, seed=5, cpp=FALSE, plotit=TRUE, plotfun=hist,...){
   if(seed)
       set.seed(seed)    
