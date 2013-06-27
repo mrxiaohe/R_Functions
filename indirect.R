@@ -15,6 +15,7 @@ indirect <- function(iv, m, dv, data, nboot=5000, alpha=.05, stand=F, seed=5, cp
     sam <- sample(n, nboot*n, T)    
     if(cpp){
       require("RcppArmadillo")
+      #Must dyn.load() `indirectboot.so` beforehand
       indirects   <- .Call("ab_C", X=as.vector(X), M=as.vector(M), Y=as.vector(Y), IND=sam-1)
     }else{
         bcoef <- function(x, y){
