@@ -79,16 +79,13 @@ indirect <- function(iv, m, dv, data, nboot=5000, alpha=.05, stand=F, seed=5, cp
     cat("Mediator:    M  = ", m, "\n")
     cat("SAMPLE SIZE: ", n, "\n")
     cat("BOOTSTRAP SAMPLES: ", nboot, "\n\n")
-  
     cat("DIRECT AND TOTAL EFFECTS\n")
-    print(fit.print)    
-
+    print(fit.print)   
     cat("\nINDIRECT EFFECT AND SIGNIFICANCE USING NORMAL DISTRIBUTION\n")
     print(sobel.print)
-
     cat("\nBOOTSTRAP RESULTS FOR INDIRECT EFFECT\n")
     print(boot.print)
-    
+  
     #output
     output <- list(Fit=fit, `Sobel test` =sobel, `Bootstrap results` = boot.table, `Indirect effect`=indirects)
     invisible(output)
