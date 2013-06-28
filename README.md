@@ -202,7 +202,7 @@ The first column of `WL` contains group information: Control group, Diet only gr
 
 ###4. `indirect()` 
 
-This function tests indirect effects by using the percentile bootstrap method and the Sobel's method (based on Andrew Hayes' SPSS macro)
+This function tests indirect effects by using the percentile bootstrap method and the Sobel's method (based on Andrew Hayes' SPSS macro). A histogram of indirect effects computed from bootstrap samples will be created by default.
 
     indirect(iv, m, dv, data, nboot=5000, alpha=0.05, stand=TRUE, seed=1)
     
@@ -215,7 +215,7 @@ We will create a mock dataset:
                        m  = sort(rlnorm(20)),
                        dv = sort(rlnorm(20), TRUE)
                        )
-    indirect("iv", "m", "dv", mock, nboot=5000)
+    indirect("iv", "m", "dv", mock, nboot=5000, cex.main=0.9)
      
     #OUTPUT 
     #Tests for Indirect Effects
@@ -240,3 +240,55 @@ We will create a mock dataset:
     #BOOTSTRAP RESULTS FOR INDIRECT EFFECT
     #         Estimate Std. Error     cilo   cihi       p
     #Effect:    0.7558    0.32578 0.013211 1.2368 0.04520
+    
+![plot](http://img829.imageshack.us/img829/2264/mt9.png)
+    
+    
+
+###5. `cinterplot()` 
+
+This function plots continuous interactions for linear models with two continuous predictors. The relationship of dv and iv1 is evaluated at different values of iv2. This is adapted from Nick Jackson's [STATA program] (https://github.com/nicholasjjackson/StataAddons)
+
+    cinterplot (data.frame, dv, iv1, iv2, iv2.values = NULL, iv2.quantiles = c(0.25, 
+                0.5, 0.75), lty = NULL, xlab = NULL, ylab = NULL, col.line = "black", 
+                col.pch = "black", ...) 
+    
+####Example
+    
+    #We will use the dataset `hsbdemo`.
+    
+    #install.packages("foreign")     #install the package `foreign` in order to import STATA datasets
+    require("foreign")
+    hsbdemo <- read.dta("http://www.ats.ucla.edu/stat/data/hsbdemo.dta")
+    
+    head(hsbdemo)    
+    #   id female    ses schtyp     prog read write math science socst       honors awards cid
+    #1  45 female    low public vocation   34    35   41      29    26 not enrolled      0   1
+    #2 108   male middle public  general   34    33   41      36    36 not enrolled      0   1
+    #3  15   male   high public vocation   39    39   44      26    42 not enrolled      0   1
+    #4  67   male    low public vocation   37    37   42      33    32 not enrolled      0   1
+    #5 153   male middle public vocation   39    31   40      39    51 not enrolled      0   1
+    #6  51 female   high public  general   42    36   42      31    39 not enrolled      0   1
+
+    #We will visualize the interaction between `math` and `socst` with `read` being the outcome variable.
+    #Specifically, the relationship between `read` and `math` will be evaluated at different values of
+    #`socst`.
+    
+    cinterplot(data.frame = m1, 
+               dv = "read", 
+               iv1 = "math", 
+               iv2 = "socst", 
+               iv2.value = seq(30, 75, 10), 
+               pch="+", 
+               col.line="red")
+    
+![plot](http://img16.imageshack.us/img16/6011/8up.png)
+
+    cinterplot(data.frame = m1, 
+               dv = "read", 
+               iv1 = "math", 
+               iv2 = "socst", 
+               pch="+", 
+               col.line="red")
+   
+    
