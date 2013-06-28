@@ -256,9 +256,15 @@ This function has an option of calling a C++ code to run the bootstrap portion o
 
 Calling the C++ code offers a substantial increase in speed (see benchmark results below) and allows for running more bootstrap samples.
 
+    require("rbenchmark")
+    benchmark(replications=1, 
+              indirect("iv", "m", "dv", mock, nboot = 50000, plotit=FALSE),
+              indirect("iv", "m", "dv", mock, nboot = 50000, plotit=FALSE, cpp = TRUE)
+              )
+    
                                                                             test replications
-    2 indirect("iv", "m", "dv", mock, nboot = 50000, cex.main = 0.7, cpp = TRUE)            1
-    1 indirect("iv", "m", "dv", mock, nboot = 50000, cex.main = 0.7)                        1
+    2 indirect("iv", "m", "dv", mock, nboot = 50000, plotit=FALSE, cpp = TRUE)              1
+    1 indirect("iv", "m", "dv", mock, nboot = 50000, plotit=FALSE)                          1
       elapsed relative user.self sys.self user.child sys.child
     2   0.417     1.00     0.401    0.009          0         0
     1   9.199    22.06     9.089    0.111          0         0
