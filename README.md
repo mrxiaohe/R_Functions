@@ -246,10 +246,10 @@ We will create a mock dataset:
     
 This function has an option of calling a C++ code to run the bootstrap portion of the function. To do so, follow the steps below:
     
-    (1) Download the shared object `indirectboot.so` (only works for 64-bit R on Mac OS. A Windows version will be uploaded soon.)
-    (2) Install the R package `RcppArmadillo`.
-    (3) Use `dyn.load()` to load the downloaded object.
-    (4) When running `indirect()`, add the `cpp=TRUE`. This argument is set to `FALSE` by default.
+(1) Download the shared object `indirectboot.so` (only works for 64-bit R on Mac OS. A Windows version will be uploaded soon.)
+(2) Install the R package `RcppArmadillo`.
+(3) Use `dyn.load()` to load the downloaded object.
+(4) When running `indirect()`, add the `cpp=TRUE`. This argument is set to `FALSE` by default.
 
 Calling the C++ code offers a substantial increase in speed (see benchmark results below) and allows for running more bootstrap samples.
 
