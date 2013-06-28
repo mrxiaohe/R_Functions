@@ -284,11 +284,4 @@ This function plots continuous interactions for linear models with two continuou
     
 ![plot](http://img16.imageshack.us/img16/6011/8up.png)
 
-    cinterplot(data.frame = m1, 
-               dv = "read", 
-               iv1 = "math", 
-               iv2 = "socst", 
-               pch="+", 
-               col.line="red")
-   
-    
+
