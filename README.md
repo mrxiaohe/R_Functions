@@ -244,6 +244,26 @@ We will create a mock dataset:
 ![plot](http://img829.imageshack.us/img829/2264/mt9.png)
     
     
+This function has an option of calling a C++ code to run the bootstrap portion of the function. To do so, follow the steps below:
+    
+    (1) Download the shared object `indirectboot.so` (only works for 64-bit R on Mac OS. A Windows version will be uploaded soon.)
+    (2) Install the R package `RcppArmadillo`.
+    (3) Use `dyn.load()` to load the downloaded object.
+    (4) When running `indirect()`, add the `cpp=TRUE`. This argument is set to `FALSE` by default.
+
+Calling the C++ code offers a substantial increase in speed (see benchmark results below) and allows for running more bootstrap samples.
+
+                                                                            test replications
+    2 indirect("iv", "m", "dv", mock, nboot = 50000, cex.main = 0.7, cpp = TRUE)            1
+    1 indirect("iv", "m", "dv", mock, nboot = 50000, cex.main = 0.7)                        1
+      elapsed relative user.self sys.self user.child sys.child
+    2   0.417     1.00     0.401    0.009          0         0
+    1   9.199    22.06     9.089    0.111          0         0
+
+When `cpp=TRUE`, running 50000 bootstrap samples took only 0.42 seconds. The R native implementation (`cpp=FALSE`) took 9 seconds.
+
+
+
 
 ###5. `cinterplot()` 
 
