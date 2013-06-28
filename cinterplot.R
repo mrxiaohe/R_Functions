@@ -1,3 +1,8 @@
+#Plots continuous interaction between iv1 and iv2. A scatter plot of dv and iv1 is plotted with regression lines showing
+#how the relationship between dv and iv1 changes as a function iv2. users can specify different iv2 values (iv2.values)
+#at which regression lines are plotted or specify the different quantiles of iv2 that regression lines are plotted. By
+#default, `iv2.quantiles` is used.
+
 cinterplot<-function(data.frame, dv, iv1, iv2, iv2.values=NULL, iv2.quantiles=c(.25, .5, .75), 
 					lty=NULL, xlab=NULL, ylab=NULL,
                    col.line="black", col.pch="black",...){
