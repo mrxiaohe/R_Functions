@@ -252,7 +252,7 @@ This function has an option of calling a C++ code to run the bootstrap portion o
 
 (3) Use `dyn.load()` to load the downloaded object.
 
-(4) When running `indirect()`, add the `cpp=TRUE`. This argument is set to `FALSE` by default.
+(4) When running `indirect()`, set `cpp=TRUE`. This argument is set to `FALSE` by default.
 
 Calling the C++ code offers a substantial increase in speed (see benchmark results below) and allows for running more bootstrap samples.
 
