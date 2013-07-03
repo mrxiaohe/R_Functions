@@ -311,3 +311,25 @@ This function plots continuous interactions for linear models with two continuou
 ![plot](http://img16.imageshack.us/img16/6011/8up.png)
 
 
+
+###6. `multcollin()` 
+This function tests for multicollinearity. The input should be a matrix/data frame of two or more variables. The function outputs the multiple R square, tolerance, and VIF for each variable. 
+
+    set.seed(1)
+    mock <- rnorm(30)
+    mock <- data.frame(iv1 = mock, 
+                       iv2 = mock + runif(30, 0, 0.1), 
+                       iv3 = mock + runif(30, 0, 1),
+                       iv4 = rnorm(30)
+                       )
+    multcollin(mock)
+    
+        Tests for Multicollinearity
+
+            Rsq       Tol      VIF
+    iv1 0.99926 0.0007430 1345.921
+    iv2 0.99924 0.0007617 1312.938
+    iv3 0.92670 0.0732994   13.643
+    iv4 0.08054 0.9194641    1.088
+
+    Condition number:   61.825
