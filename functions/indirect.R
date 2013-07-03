@@ -1,6 +1,6 @@
 #Tests for mediation effect based on Andrew Hayes' SPSS macro
 
-function(iv, m, dv, data, nboot=5000, alpha=.05, stand=F, seed=5, cpp=FALSE, plotit=TRUE, plotfun=hist,...){
+indirect <- function(iv, m, dv, data, nboot=5000, alpha=.05, stand=F, seed=5, cpp=FALSE, plotit=TRUE, plotfun=hist,...){
   if(seed)
       set.seed(seed)    
     x   <- data[, c(iv, m, dv)]
