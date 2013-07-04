@@ -202,7 +202,7 @@ The first column of `WL` contains group information: Control group, Diet only gr
 
 ###4. `indirect()` 
 
-This function tests indirect effects by using the percentile bootstrap method and the Sobel's method (based on Andrew Hayes' SPSS macro). A histogram of indirect effects computed from bootstrap samples will be created by default.
+This function tests indirect effects by using the percentile bootstrap method and the Sobel method (based on Andrew Hayes' SPSS macro). A histogram of indirect effects computed from bootstrap samples will be created by default.
 
     indirect(iv, m, dv, data, nboot=5000, alpha=0.05, stand=TRUE, seed=1)
     
