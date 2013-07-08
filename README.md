@@ -300,7 +300,7 @@ This function plots continuous interactions for linear models with two continuou
     #Specifically, the relationship between `read` and `math` will be evaluated at different values of
     #`socst`.
     
-    cinterplot(data.frame = m1, 
+    cinterplot(data.frame = hsbdemo, 
                dv = "read", 
                iv1 = "math", 
                iv2 = "socst", 
