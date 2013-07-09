@@ -367,3 +367,8 @@ This function calls the function `tree` and plots a coalescent tree based on the
     tree.plot(20)
 
 ![plot](http://img850.imageshack.us/img850/5128/mmn0.png)
+
+
+###9. `sampleDist()`
+This function plots the saxmpling distributions of the mean, the median and the 20% trimmed mean based on any random 
+
