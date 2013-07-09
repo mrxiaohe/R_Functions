@@ -29,8 +29,8 @@ sampleDist <- function( data, plotit=TRUE, seed=501 ) {
       lines( smedians.dens, col="red" )
 		  lines( stmeans.dens, col="darkblue" )
 	
-		  legend( "topleft",
-              c("Samp dist. of the mean", "Samp dist. of the median", "Samp dist. of the tmean"), 
+		  legend( "topright",
+              c("Sample means", "Sample medians", "Sample tr. means"), 
               col=c("darkgreen", "red","darkblue"), lty=1, bty="n")
   }
 	
