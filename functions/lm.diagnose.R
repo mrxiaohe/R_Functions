@@ -1,4 +1,3 @@
-
 lm.diagnose <- function(lm.object, plotit=TRUE){
   require("psych") 
 	require("nortest") 
@@ -14,12 +13,12 @@ lm.diagnose <- function(lm.object, plotit=TRUE){
 		dens.y = hist(model.res, plot=F)$density
 		#Histogram and normal curve
 		hist(model.res, 
-			 freq = FALSE, 
-			 ylim = range(dens.y, dnorm(mean(model.res), mean=mean(model.res), sd=sd(model.res))),
-			 main = "Histogram of Residuals and Normal Fit", 
-			 cex.main = 1,
-			 xlab = "Residuals",
-			 ylab = "Density"
+		     freq = FALSE, 
+		     ylim = range(dens.y, dnorm(mean(model.res), mean=mean(model.res), sd=sd(model.res))),
+		     main = "Histogram of Residuals and Normal Fit", 
+		     cex.main = 1,
+		     xlab = "Residuals",
+		     ylab = "Density"
 		)		 
 		curve(dnorm(x, mean=mean(model.res), sd=sd(model.res)), add=TRUE)
 		#Boxplot
