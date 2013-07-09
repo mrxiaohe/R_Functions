@@ -391,3 +391,69 @@ This function plots the saxmpling distributions of the mean, the median and the 
 ![plot](http://imageshack.us/a/img600/6714/4e8x.png)
 
 
+###9. `lm.diagnose()`
+This function provides various diagnostic tools for linear regression. The user inputs an `lm` object, and the function produces:
+
+* Descriptive statistics for the residuals
+* Various tests for normality
+* Tests for multicollinearity (by calling `multicollin()`
+* A scatter plot of residuals against predicted values
+* A scatter plot of residuals against leverages
+* A histogram of residuals and a curve for the normal fit
+* A boxplot of residuals
+
+####Example
+
+For this example, we will use the dataset `hsbdem`.
+
+    #install.packages("foreign")     #install the package `foreign` in order to import STATA datasets
+    require("foreign")
+    hsbdemo <- read.dta("http://www.ats.ucla.edu/stat/data/hsbdemo.dta")
+    
+    head(hsbdemo)
+    #   id female    ses schtyp     prog read write math science socst       honors awards cid
+    #1  45 female    low public vocation   34    35   41      29    26 not enrolled      0   1
+    #2 108   male middle public  general   34    33   41      36    36 not enrolled      0   1
+    #3  15   male   high public vocation   39    39   44      26    42 not enrolled      0   1
+    #4  67   male    low public vocation   37    37   42      33    32 not enrolled      0   1
+    #5 153   male middle public vocation   39    31   40      39    51 not enrolled      0   1
+    #6  51 female   high public  general   42    36   42      31    39 not enrolled      0   1
+
+Suppose we are interested in the regression of `read` on `write`, `math`, and `science`. Let's use `lm.diagnose()` to test potential problems.
+
+    lm.model <- lm(read ~ write + math + science, hsbdemo)
+    lm.diagnose(lm.model)
+    
+    #output
+    
+    lm(formula = read ~ write + math + science, data = hsbdemo)
+
+    DESCRIPTIVES OF RESIDUALS                
+    mean       0.000
+    median     0.077
+    sd         6.948
+    se         0.491
+    min      -18.562
+    max       16.232
+    skew      -0.103
+    kurtosis  -0.311
+
+    TESTS FOR NORMALITY
+                       statistic      p  
+    Shapiro-Wilk          0.9954 0.8132  
+    Kolmogorov-Smirnov    0.0346 0.8092  
+    Anderson-Darling      0.2040 0.8736  
+    Cramer-von Mises      0.0360 0.7523  
+    ---
+    .0001 '***' .001 '**' .01 '*' .05 '.' .1
+
+    TESTS FOR MULTICOLLINEARITY
+               Rsq    Tol   VIF
+    write   0.4356 0.5644 1.772
+    math    0.4962 0.5038 1.985
+    science 0.4508 0.5492 1.821
+
+    Condition number:   12.871
+    
+![plot](http://img706.imageshack.us/img706/9140/f68j.png)
+
