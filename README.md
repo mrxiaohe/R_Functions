@@ -354,10 +354,10 @@ This function simulates coalescent time based on the Coalescent Theory. The user
 		    8       7        6  0.048569 
 		    9       1        8  0.139795 
 		 -------------------------------
-                    Total time:   0.4608 
-      Sum of external branches:   1.1568 
-         # of left descendants:        1
-        # of right descendants:        4
+                    	    Total time:   0.4608 
+              Sum of external branches:   1.1568 
+         	 # of left descendants:        1
+        	# of right descendants:        4
 
 
 
@@ -370,5 +370,24 @@ This function calls the function `tree` and plots a coalescent tree based on the
 
 
 ###9. `sampleDist()`
-This function plots the saxmpling distributions of the mean, the median and the 20% trimmed mean based on any random 
+This function plots the saxmpling distributions of the mean, the median and the 20% trimmed mean based on any random number generation functions such as `rnorm()`, `rexp()`, and `rlnorm`. An output of the standard errors based on the simulated samples is also provided.
+
+	sampleDist(rnorm, sam_size=200, niter=10000, mean=2, sd=2)
+        #output based on 10000 simulated samples with n = 200 from a mu=2, sigma=2 normal distribution.
+        	   SE
+	Mean   0.1420
+	Median 0.1764
+	Tmean  0.1511
+
+![plot](http://imageshack.us/a/img69/2672/4r47.png)
+	
+	sampleDist(rlnorm, sam_size=200, niter=10000)
+        #Output based on 10000 simulated samples with n = 200 from a meanlog=0, sdlog=1 lognormal distribution.
+	           SE
+	Mean   0.1528
+	Median 0.0888
+	Tmean  0.0863
+
+![plot](http://imageshack.us/a/img600/6714/4e8x.png)
+
 
