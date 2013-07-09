@@ -333,3 +333,37 @@ This function tests for multicollinearity. The input should be a matrix/data fra
     iv4 0.08054 0.9194641    1.088
 
     Condition number:   61.825
+    
+
+###7. `tree()`
+This function simulates coalescent time based on the Coalescent Theory. The user specifies the number of offsprings in the most recent generation (the bottom of a coalescent tree), and time to coalescence is simulated (backwards from the most recent offsprings to the Mitochondrial Eve). Seed defaults to 1 for replication and can be changed or set to FALSE.
+
+    tree(5)
+    #Output
+    
+                   Descendant
+		 Node    Left    Right      Time
+		 -------------------------------
+		    1       0        0         0 
+		    2       0        0         0 
+		    3       0        0         0 
+		    4       0        0         0 
+		    5       0        0         0 
+		    6       4        5  0.075518 
+		    7       2        3  0.196940 
+		    8       7        6  0.048569 
+		    9       1        8  0.139795 
+		 -------------------------------
+                    Total time:   0.4608 
+      Sum of external branches:   1.1568 
+         # of left descendants:        1
+        # of right descendants:        4
+
+
+
+###8. `tree.plot()`
+This function calls the function `tree` and plots a coalescent tree based on the result.
+
+    tree.plot(20)
+
+![plot](http://img850.imageshack.us/img850/5128/mmn0.png)
