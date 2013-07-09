@@ -19,7 +19,7 @@ multcollin <- function(data, printit=TRUE){
 			    row.names = colnames(data))
 	Kappa <- kappa(data)
 	if(printit){
-		    cat("\n\tTests for Multicollinearity\n\n")
+		    cat("TESTS FOR MULTICOLLINEARITY\n")
 		    print(as.data.frame(format(test1, digits=4)))
 		    cat("\nCondition number:  ", round(Kappa, 3))
 	}
