@@ -1,13 +1,18 @@
 read.linger <- function(file_path = ".", pattern, word_rm = TRUE, practiceItemKey = NULL, ...){
-  if(word_rm)
-    word_rm <- c(rep("factor", 5), "NULL", "factor", "numeric")
-	else
+	if(word_rm)
+		word_rm <- c(rep("factor", 5), "NULL", "factor", "numeric")
+  	else
 		word_rm <- c(rep("factor", 7), "numeric")
-	file_names <- list.files(path = file_path, pattern = pattern, ...)
+ 	
+ 	file_names <- list.files(path = file_path, pattern = pattern, ...)
+	
 	if(file_path != ".")
 		file_names <- paste(file_path, file_names, sep="")
+	
 	temp <- lapply(file_names, read.table, colClasses = word_rm)
+	
 	temp <- do.call("rbind", temp)
+	
 	if( !is.null(practiceItemKey) ){
 		practiceID <- apply(temp[,1:4], 1, function(x) practiceItemKey %in% x)
 		temp <- temp[!practiceID,]
