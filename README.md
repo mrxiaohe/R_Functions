@@ -457,3 +457,20 @@ Suppose we are interested in the regression of `read` on `write`, `math`, and `s
     
 ![plot](http://img706.imageshack.us/img706/9140/f68j.png)
 
+
+
+###10. read.linger()
+
+This function imports all the *Linger* data files from a folder. By default, it will look for data files in the working directory. The user can specify the folder path.
+
+     read.linger <- function(file_path = ".", pattern, word_rm = TRUE, practiceItemKey = NULL, ...)
+     
+* `file_path`: path to the folder that contains all the Linger data files.
+* `pattern`: some pattern that can be used to search for files (e.g., the extension name of linger data files).
+* `word_rm`: logical; whether to remove the column that contains the words of the sentence stimuli.
+* `practiceItemKey`: keyword in the header of Linger stimulus file that indicates a trial is a practice trial.
+      
+      
+      
+      
+      
