@@ -474,3 +474,7 @@ This function imports all the *Linger* data files from a folder. By default, it 
       
       
       
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mrxiaohe/r_functions/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
