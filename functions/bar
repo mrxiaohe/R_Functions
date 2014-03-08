@@ -1,10 +1,10 @@
-bar<-function(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, half.errbar=TRUE, conf.level=.95, 
+bar <- function(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, half.errbar=TRUE, conf.level=.95, 
 		xlab=NULL, ylab=NULL, main=NULL, names.arg=NULL, bar.col="black", whisker=.015,args.errbar=NULL,
 		legend=TRUE, legend.text=NULL, args.legend=NULL,legend.border=FALSE, box=TRUE, args.yaxis=NULL, 
 		mar=c(5,4,3,2),...){
 	axes=!percentage
 	dv.name<-substitute(dv)
-	if(length(dv.name)>1) stop("'dv' only takes one variabble")
+	if(length(dv.name)>1) stop("'dv' only takes one variable")
 	dv.name<-as.character(dv.name)
 	dv<-dataframe[[dv.name]]
 	fnames<-substitute(factors)
@@ -53,9 +53,13 @@ bar<-function(dv, factors, dataframe, percentage=FALSE, errbar=!percentage, half
 			args.legend<-modifyList(args.legend.temp, args.legend)
 		else 
 			args.legend<-args.legend.temp
+	} else if(!legend){
+		args.legend<-NULL
+		legend.text<-NULL
 	}
 	if(errbar && legend && !percentage) ymax<-max(hi.bar)+max(hi.bar)/20
 	else if(errbar && legend && percentage) ymax<-115
+	else if(errbar && !legend) ymax <- max(xbars)
 	else if(!errbar && legend && percentage) ymax<-110	
 	else if(!errbar) ymax<-max(xbars) + max(xbars)/20
 	if(!percentage){
