@@ -1,0 +1,465 @@
+nobars = function(term){
+    if (!('|' %in% all.names(term))) return(term)
+    if (is.call(term) && term[[1]] == as.name('|')) return(NULL)
+    if (length(term) == 2) {
+	nb = nobars(term[[2]])
+	if (is.null(nb)) return(NULL)
+	term[[2]] = nb
+	return(term)
+    }
+    nb2 = nobars(term[[2]])
+    nb3 = nobars(term[[3]])
+    if (is.null(nb2)) return(nb3)
+    if (is.null(nb3)) return(nb2)
+    term[[2]] = nb2
+    term[[3]] = nb3
+    term
+}
+
+addbrackets = function(ranefterms,...){
+	paste('(', ranefterms, ')',...)
+}
+
+attachtilde = function(x){
+	output = list()
+	for(i in x) output = formula(paste('~', x))
+	output
+}
+
+lp = function(x) {
+	ret = c()
+	stopifnot(all(grepl('\\|', x)))
+	for(i in seq_along(x)) {
+		ret = c(ret, strsplit(x[i], '\\|')[[1]][1])
+	}
+	trim(ret)
+}
+
+rp = function(x) {
+	group = c()
+	stopifnot(all(grepl('\\|', x)))
+	for(i in seq_along(x)) {
+		group = c(group, strsplit(x[i], '\\|')[[1]][2])
+	}
+	trim(group)
+}
+
+
+trim = function(s) {
+	gsub('(^ +)|( +$)', '', s)
+}
+
+fixed.terms = function(formula){
+	brokenformula = breakformula(formula)
+	dv = as.character(terms.formula(formula)[[2]]) 
+	ranef.index = grep("\\|", brokenformula)
+	ivs = brokenformula[-ranef.index]
+	ivs = paste(ivs, collapse = " + ")
+	paste(dv,'~', ivs)
+}
+
+group.terms = function(formula){
+	temp = ranef.terms(formula)
+	temp = lapply(temp, rp)
+	temp
+} 
+
+breakformula = function(formula){
+	output = attr(terms.formula(formula), "term.labels")
+	attr(output, "order") = attr(terms.formula(formula), "order")
+	output
+}
+
+ranef.terms = function(formula){
+	brokenformula = breakformula(formula)
+	ranef.index = grep("\\|", brokenformula)
+	output = list()
+	for(i in 1: length(ranef.index))
+		output[[i]] = brokenformula[ranef.index[i]]
+	output
+} 
+
+simplify.ranefterm = function(ranefterms){
+	temp = as.character(ranefterms)
+	temp = lp(temp)
+	temp = attachtilde(temp)
+	temp = terms.formula(temp)
+	temp.order = attr(temp, "order")
+	temp = attr(temp, "term.labels")
+	attr(temp, "order") = temp.order
+	temp
+}
+
+lp.add = function(ranefterms){
+	ranefterms.lp.add = simplify.ranefterm(ranefterms)
+	noslope = NULL
+	if(length(ranefterms.lp.add) == 0) noslope = TRUE else noslope = FALSE
+	if(noslope) ranefterms.lp.add = "1"
+	if(!noslope){
+		ranefterms.lp.add = paste(ranefterms.lp.add, collapse = " + ")
+		ranefterms.lp.add = paste("1 + ", ranefterms.lp.add, sep="")
+	}
+	ranefterms.lp.add
+}
+
+reformulate = function(formula){
+	fixedterms = fixed.terms(formula)
+	groupterms = group.terms(formula)
+	ranefterms = ranef.terms(formula)
+	ranefterms = lapply(ranefterms, lp.add)
+	newformula = fixedterms
+	for(i in 1:length(ranefterms)){
+		ranefterms[[i]] = paste("(", ranefterms[[i]], 
+									" | ", groupterms[[i]], ")", 
+									sep="")
+		newformula = paste(newformula, ranefterms[[i]], sep = " + ")
+	}
+	newformula
+}
+
+
+deheading = function(anova.object){
+	attributes(anova.object)$heading = NULL
+	anova.object
+}
+
+
+
+reassemble = function(rand.slope = NULL, groupterms){
+	if(is.null(rand.slope)) rand.slope = "1"
+	else
+		rand.slope = paste(paste(rand.slope, 
+						   collapse = " + ", sep=""), 
+						   sep = " + ")
+	addbrackets(paste(rand.slope, "|", groupterms), sep="")
+} 	
+
+
+regroup = function(rf, simpler.rf, order, total.rf){
+	 if(total.rf > 1){
+		temp = addbrackets(unlist(rf)[-order], sep="")
+	 	if(order == 1)
+	 		output = paste(simpler.rf, 
+	 					   paste(temp[1:length(temp)], collapse = " + "), sep = " + ")
+	 	else if(order == total.rf)
+	 		output = paste(paste(temp[1:length(temp)], collapse = " + "),
+	 					   simpler.rf, sep = " + ")
+	 	else if(order > 1 & order < total.rf)
+			output = paste(paste(temp[1:order-1], collapse = " + "), simpler.rf,
+						   paste(temp[order:length(temp)], collapse = " + "), sep = " + ")
+	}else if(total.rf == 1)
+		output = simpler.rf
+	output
+}
+
+anova.printer = function(counter, model1, model2, anova.output, print = TRUE){
+	if(print){
+		cat("Iteration", format(counter, width = 3), " ", paste(rep(".", 50), sep=""), sep="")
+		cat("\n\tRandom effects:")
+		cat("\n\t\tModel 1:", addbrackets(unlist(ranef.terms(model1)),sep = ""), sep="\n\t\t\t")
+		cat("\t\tModel 2:", addbrackets(unlist(ranef.terms(model2)),sep = ""), sep="\n\t\t\t")
+		cat("\n")
+		rownames(anova.output) = c("    Model 1:", "    Model 2:")
+		print(anova.output, signif.legend=F)
+	}
+}
+
+
+warn = function(expr){
+	W = NULL
+    w.handler = function(w){
+    	W <<- w
+ 		invokeRestart("muffleWarning")
+    }
+    list(result = withCallingHandlers(tryCatch(expr, error = function(e) e), warning = w.handler),
+ 	 warning = W)
+ }
+				
+
+drop.ranef.b = function(formula, variable, p.crit = 0.1, data, print = FALSE){
+	datalist = split(data, data[variable])
+ 	nvar = length(unique(data[,variable]))
+	cat("\n\t", nvar, " sets of comparisons in progress. Please wait...", sep="", "\n\n")
+ 	if(!print) cat("\tSets finished: ")	
+	output = list()
+ 	for(i in 1:nvar)
+ 	{
+ 		if(print) cat("\tProcessing Set", i, "...\n\n")
+ 		output[[i]] = drop.ranef(formula, data = datalist[[i]], p.crit = p.crit, print = print, batch = TRUE)
+ 		if(!print){
+			if(i < nvar)
+		 		cat(i, ", ", sep="")	
+		 	if(i == nvar)
+		 		cat(i, "      [COMPLETED!]")		
+ 		}
+ 	}
+# 	print(class(output))
+	output = lapply(lapply(lapply(output, as.formula),reformulate), as.character)
+	output = data.frame(matrix(output))
+	colnames(output) = "Final model(s)"
+	output[,1] = format(output[,1], justify="left", width = max(nchar(output[,1])))
+	row.names(output)[1:nrow(output)] = paste("Set ", 1:nrow(output), ":", sep="")
+	colnames(output) = format(colnames(output), width = max(nchar(output[,1])))
+	output
+}
+
+
+drop.ranef = function(formula, p.crit = 0.1, print = TRUE, invisible.result = TRUE, batch = FALSE, data,...){
+	require(lme4)
+	assign("last.warning", NULL, envir = baseenv())
+	options(warn = -2)
+	current = as.formula(reformulate(formula))
+	fixedterms = fixed.terms(formula)
+	ranefterms = lapply(ranef.terms(current), simplify.ranefterm)
+	droppable.index.orig = droppable.index = which(unlist(lapply(ranefterms, length))!= 0)
+	to.drop = lapply(lapply(ranef.terms(formula), simplify.ranefterm), rev)
+	groupterms = group.terms(current)
+	orders = lapply(lapply(ranefterms, attr, "order"), rev)
+	skip.to.end = c.exist = n.exist = FALSE
+	continue = repetition = TRUE
+	converge.list = list()
+	converge.counter = 0
+	model.list = list()
+	model.counter = 0	
+	counter = 0
+	if(!print & !batch) invisible.result = FALSE
+	if(!batch) cat("\nIn progress. Please wait...\n")
+	no.ranef.needed = FALSE
+	loop.check = current
+	if(length(droppable.index) > 0){
+		while(continue) {
+			num.drop.orig = lapply(lapply(ranef.terms(current), simplify.ranefterm), length)
+ 			droppable.index = which(unlist(lapply(ranefterms, length))!= 0)
+			for(i in droppable.index){
+				for(j in to.drop[[i]]){
+#					check = current
+					ranefterms = ranef.terms(current)
+					temp = trim(unlist(strsplit(lp.add(ranefterms[[i]]), '\\+')))
+					if(sum(grepl(j, temp)) > 1) 
+					{ 
+					}else
+					{ 
+						temp = temp[-which(temp == j)]
+						temp = reassemble(temp, groupterms[[i]])
+						temp = regroup(ranefterms, temp, i, length(ranefterms))
+						new = as.formula(paste(fixedterms, temp, sep = " + "))
+						if(!c.exist){
+							temp.result = warn(lmer(current, data))						
+							W.current = as.character(temp.result$warning$call)
+							if(exists("W.current") & 
+							   sum(grepl("mer_finalize", W.current)) == 0)
+							{
+								current.model = temp.result$result
+								currentone = current
+								rm(temp.result)						
+							}
+						}
+						if(exists("W.current") & sum(grepl("mer_finalize", W.current)) > 0){
+							converge.counter = converge.counter + 1
+							converge.list[[converge.counter]] = current
+							if(exists("current.model"))
+								rm(current.model)
+						}
+						W.current = NULL
+						temp.result = warn(lmer(new, data))
+						W.new = as.character(temp.result$warning$call)
+						if(exists("W.new") & 
+						   sum(grepl("mer_finalize", W.new)) == 0)
+						{
+							new.model = temp.result$result
+							rm(temp.result)				
+							newone = new
+						}else if(exists("W.new") & 
+				 		         sum(grepl("mer_finalize", W.new)) > 0)
+				 		{
+							converge.counter = converge.counter + 1
+							converge.list[[converge.counter]] = new
+							if(exists("new.model"))
+								rm(new.model)
+						}
+						W.new = NULL				
+			 			if(exists("current.model")) c.exist = TRUE else c.exist = FALSE
+   						if(exists("new.model")) n.exist = TRUE else n.exist = FALSE
+						#model comparisons below
+						if(c.exist & n.exist){ 
+		   			 		anova.output = deheading(anova(current.model, new.model))
+	   				 		pval = anova.output[2,"Pr(>Chisq)"]
+							counter = counter + 1
+							anova.printer(counter, currentone, newone, anova.output, print=print)
+			  				if(pval > p.crit){
+								current = new
+    		  					current.model = new.model
+    	  						currentone = newone
+      							rm(new, new.model)
+					    	}else if(pval <= p.crit){
+					    			rm(new, new.model) 				    	
+						    }   
+						 }else if(!c.exist & !n.exist){
+	 							current = new
+		 						rm(new)
+	 					 }else if(c.exist & !n.exist){
+	 					 	if(grepl(":", j))
+								current = new
+							rm(new)	
+			 			 }else if(!c.exist & n.exist){
+			 			 		c.exist = TRUE
+	 							current = new
+	 							current.model = new.model
+	 							currentone = newone
+	 							rm(new, new.model, newone)	
+						 }
+					}
+				}
+			}
+			if((c.exist & n.exist & reformulate(formula) == current)|(!c.exist & !n.exist)){ 
+				skip.to.end = TRUE
+				break
+			}else
+			{
+				skip.to.end = FALSE
+				ranefterms = lapply(ranef.terms(current), simplify.ranefterm)
+				num.drop.new = lapply(ranefterms, length)
+				if(length(droppable.index) > 1){
+	    			for(i in droppable.index[2]:length(droppable.index)){
+	    				if(num.drop.new[[i]] != num.drop.orig[[i]]){
+							if(sum(unlist(lapply(ranefterms[1:(i-1)], length))) > 0){	
+								continue = TRUE
+		    				}
+		    				else if(sum(unlist(lapply(ranefterms[1:(i-1)], length))) == 0)
+		    					continue = FALSE
+	    				}else
+	    					continue = FALSE
+	    			}
+#					if(length(droppable.index) > 0 & 
+#					  diff.num.drop > 0 & 
+#					  (repetition | check != current)){
+#						continue = TRUE
+ #	  					repetition = F 
+ 	  				if(continue){
+						to.drop = lapply(lapply(ranef.terms(current), simplify.ranefterm), rev)	
+						loop.check = current	
+					} else break
+#					}else 
+#					{
+#						continue=FALSE
+#						repetition = FALSE
+#						break   		
+#	   				}
+#				}else 
+#					{
+#						continue=FALSE
+#						repetition = FALSE
+#						break   		
+	   			}else {continue = FALSE; break}	
+			}
+		}
+	}
+	#Done checking random slopes. Now check random effect terms
+	ranefterms = ranef.terms(current)
+	drop.index = which(unlist(lapply(lapply(ranefterms, 
+	                simplify.ranefterm), length)) == 0)
+	if(length(drop.index) > 0 & 
+	   length(ranef.terms(current)) > 1 & 
+	   !skip.to.end)
+	{
+		if(!exists("current.model")){
+			temp.result = warn(lmer(current, data))
+			W.current = as.character(temp.result$warning$call)
+			if(exists("W.current") & 
+			   sum(grepl("mer_finalize", W.current)) == 0){
+				current.model = temp.result$result
+				currentone = current
+				rm(temp.result)						
+			}else if(exists("W.current") & 
+		     	     sum(grepl("mer_finalize", W.current)) > 0){
+						converge.counter = converge.counter + 1
+						converge.list[[converge.counter]] = current
+						if(exists("current.model"))
+							rm(current.model)
+						stop("\n\nWARNING: Start with a model that can converge! \n\n")				
+					}		
+		}					
+		for(i in 1:length(drop.index)){
+			ranefterms = unlist(ranef.terms(current))
+			num.drop.red = length(which(unlist(lapply(lapply(ranefterms, 
+	                			   simplify.ranefterm), length)) == 0))
+			if(!(num.drop.red == 2 & length(ranefterms) == 2)){    
+				currentone = current
+				new = as.formula(paste(fixedterms, paste(addbrackets(ranefterms[-drop.index[i]], 
+			            	   	         sep=""), collapse = " + "), sep=" + "))
+				new.model = lmer(new, data)
+				newone = new
+				anova.output = deheading(anova(current.model, new.model))
+				pval = anova.output[2,"Pr(>Chisq)"]
+				counter = counter + 1
+				anova.printer(counter, currentone, newone, anova.output, print=print)
+				if(pval > p.crit){
+					current = new
+    		  			current.model = new.model
+	    	  			currentone = newone
+	   				rm(new, new.model)
+				}else if(pval <= p.crit){
+				   	rm(new, new.model) 				    	
+				}   
+			}
+		}
+		if(num.drop.red == 2 & length(ranefterms) == 2){    
+			compare.list = list(as.formula(paste(fixedterms, paste(addbrackets(ranefterms[1], 
+											sep=""), collapse = " + "), sep=" + ")),
+											as.formula(paste(fixedterms, paste(addbrackets(ranefterms[2], 
+											sep=""), collapse = " + "), sep=" + "))
+											)
+			result.list = list(lmer(compare.list[[1]], data), 
+										   lmer(compare.list[[2]], data))
+			anova.list = list(deheading(anova(current.model, result.list[[1]])), 
+									    deheading(anova(current.model, result.list[[2]])))
+			counter = counter + 1
+			anova.printer(counter, current, compare.list[[1]], anova.list[[1]], print=print)
+			counter = counter + 1
+			anova.printer(counter, current, compare.list[[2]], anova.list[[2]], print=print)
+			if(sum(unlist(lapply(anova.list, function(x){x[2,"Pr(>Chisq)"]})) > p.crit) == 1){
+				current = compare.list[[which(unlist(lapply(anova.list,
+				 			   function(x){x[2,"Pr(>Chisq)"]})) > p.crit)]]
+			}else if(sum(unlist(lapply(anova.list, function(x){x[2,"Pr(>Chisq)"]})) > p.crit) ==2)
+						cat("None of the random effects seem to contribute to the model")
+		}		
+	}else if(skip.to.end & !c.exist & !n.exist){
+		cat("Unable to simplify this model's random effects")	
+	}
+	# else if(skip.to.end & c.exist & n.exist){
+		# cat("\n\tFinal model\n")
+		# print(current)
+	# }
+	options(warn = 0)	
+	if(exists("current.model"))
+	{
+		if(counter > 0 & print) cat(paste(rep(".", 63), collapse=""), "\n\n")
+		if(print){
+			if(converge.counter > 0) {
+				converge.list = lapply(converge.list, reformulate)
+				converge.list = data.frame(matrix(converge.list))
+				colnames(converge.list) = "Models with failed/singular convergence"
+				row.names(converge.list) = paste(1:converge.counter, ".", sep="")
+				row.names(converge.list) = format(row.names(converge.list), width=4)
+				converge.list[,1] = as.character(converge.list[,1])
+				Width = max(c(nchar(colnames(converge.list)), nchar(converge.list[,1])))
+				colnames(converge.list) = format(colnames(converge.list), width=Width, justify = "left")
+				converge.list = format(converge.list, width=Width, justify="left")
+		 		print(converge.list)
+	 			cat("\n")
+			}
+			output = data.frame(matrix(reformulate(current))) 
+			row.names(output) = "    "
+			output[,1] = as.character(output[,1])
+			Width = nchar(output[,1])
+			colnames(output) = format("[Final Model]", width=Width, justify="left")
+			output = format(output, width=Width, justify="left")
+			print(output)
+			cat("\n")
+		}
+		if(invisible.result)
+			invisible(current)
+		else current
+	}else
+		cat("\nUnable to proceed with the comparisons.\n")
+}	
