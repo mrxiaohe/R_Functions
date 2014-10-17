@@ -1,0 +1,8 @@
+#Forward difference coding:
+forward.code <- function(variable){
+  if(!is.factor(variable)) 
+		stop("The provided variable must be a factor variable")
+	
+	k <- length(levels(variable))
+	mapply(function(k, i) {rep( c( (k-i)/k, -i/k), c(i, k-i) )}, k=k, i=1:(k-1))
+}
