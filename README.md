@@ -1,6 +1,8 @@
 R_Functions
 ===========
 
+(Not all functions are shown here)
+
 ###1. `trimdata()` 
 
     trimdata(dataset, dv, factors = NULL, tr = 3, rm = FALSE, min.val = NULL, max.val = NULL)
@@ -472,9 +474,3 @@ This function imports all the *Linger* data files from a folder. By default, it 
       
       
       
-      
-      
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mrxiaohe/r_functions/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
